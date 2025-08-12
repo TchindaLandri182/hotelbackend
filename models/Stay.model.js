@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const StaySchema = new Schema({
@@ -10,10 +10,9 @@ const StaySchema = new Schema({
   actualCheckOut: { type: Date },
   status: { 
     type: String, 
-    enum: ['pending', 'confirmed', 'cancelled', 'reserved'], 
+    enum: ['pending', 'confirmed', 'cancelled', 'in-progress', 'completed'], 
     default: 'pending' 
   },
-  // Moved fields from Client
   tel: { type: String },
   zoneOfResidence: { type: String },
   zoneOfDestination: { type: String },
@@ -23,4 +22,4 @@ const StaySchema = new Schema({
   frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Stay', StaySchema)
+module.exports = mongoose.model('Stay', StaySchema);

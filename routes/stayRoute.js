@@ -1,39 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const checkPermission = require('../middlewares/permissionMiddleware');
-const verifyJWT = require('../middlewares/verifyJWT');
+const verifyJWT = require('../middlewares/authentication');
 const permissions = require('../constants/permissions.constants');
+const stayController = require('../controllers/stayController');
 
-const stayController = require('../controllers/stay.controller');
+router.use(verifyJWT);
 
-router.use(verifyJWT)
+router.post('/',
+  checkPermission(permissions.createStay),
+  stayController.createStay
+);
 
-// Stay routes
-router.post(
-    '/stays',
-    checkPermission(permissions.createStay),
-    stayController.createStay
-  );
-  router.put(
-    '/stays/:id',
-    checkPermission(permissions.updateStay),
-    stayController.updateStay
-  );
-  router.delete(
-    '/stays/:id',
-    checkPermission(permissions.deleteStay),
-    stayController.deleteStay
-  );
-  router.get(
-    '/stays/:id',
-    checkPermission(permissions.readStay),
-    stayController.getStayById
-  );
-  router.get(
-    '/stays',
-    checkPermission(permissions.readStay),
-    stayController.getStays
-  );
+router.put('/:id',
+  checkPermission(permissions.updateStay),
+  stayController.updateStay
+);
 
+router.delete('/:id',
+  checkPermission(permissions.deleteStay),
+  stayController.deleteStay
+);
+
+router.get('/:id',
+  checkPermission(permissions.readStay),
+  stayController.getStayById
+);
+
+router.get('/',
+  checkPermission(permissions.readStay),
+  stayController.getStays
+);
 
 module.exports = router;

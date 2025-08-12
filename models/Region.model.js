@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const RegionSchema = new mongoose.Schema({
     name: { 
@@ -10,4 +11,4 @@ const RegionSchema = new mongoose.Schema({
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Region', RegionSchema)
+module.exports = mongoose.model('Region', RegionSchema);

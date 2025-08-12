@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
 const PointSchema = new mongoose.Schema({
     type: {
@@ -9,9 +8,9 @@ const PointSchema = new mongoose.Schema({
         required: true
     },
     coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
         required: true
     }
 });
 
-module.exports = mongoose.model('Point', PointModels)
+module.exports = mongoose.model('Point', PointSchema);

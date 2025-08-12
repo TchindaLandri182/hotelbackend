@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 require('mongoose-type-email');
 const { Schema } = mongoose;
-const roleList = require('../constants/roleLIst.constants')
+const roleList = require('../constants/roleLIst.constants');
 
 const PointSchema = new mongoose.Schema({
     type: {
@@ -11,7 +11,7 @@ const PointSchema = new mongoose.Schema({
         required: true
     },
     coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
         required: true
     }
 });
@@ -52,4 +52,4 @@ const UserSchema = new Schema({
   frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema)
+module.exports = mongoose.model('User', UserSchema);

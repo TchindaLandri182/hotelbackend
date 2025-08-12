@@ -1,29 +1,7 @@
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../configs/cloudinary');
-const allowedImageFormat = require('../constants/allowedImageFormat');
-
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'hotelmanagement',
-    allowed_formats: allowedImageFormat,
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
-  },
-});
-
-const upload = multer({ storage });
-
-module.exports = upload;
-
-
-
-
-
-const permissions = require('../constants/permissions.constants');
+const Log = require('../models/Log.model');
 
 const checkPermission = (...requiredPermissions) => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     try {
       const user = req.user;
       
@@ -40,13 +18,24 @@ const checkPermission = (...requiredPermissions) => {
 
       // Check if user has all required permissions
       const hasAllPermissions = requiredPermissions.every(perm => 
-        user.permissions.includes(perm)
+        user.permissions && user.permissions.includes(perm)
       );
 
       if (!hasAllPermissions) {
+        await Log.create({
+          action: 'PERMISSION_DENIED',
+          type: 'security',
+          user: user._id,
+          details: {
+            method: req.method,
+            route: req.originalUrl,
+            required: requiredPermissions,
+            userPermissions: user.permissions
+          }
+        });
+
         return res.status(403).json({ 
-          messageCode: 'MSG_0099', message: 'Forbidden: Insufficient permissions',
-          requiredPermissions
+          messageCode: 'MSG_0099', message: 'Forbidden: Insufficient permissions'
         });
       }
 

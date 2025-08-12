@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const RoomSchema = new mongoose.Schema({
   hotel: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
@@ -7,7 +7,7 @@ const RoomSchema = new mongoose.Schema({
   deleted: { type: Boolean, default: false },
   isInMaintenance: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  frontendDateTime: { type: Date } // For offline sync
+  frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Room', RoomSchema)
+module.exports = mongoose.model('Room', RoomSchema);

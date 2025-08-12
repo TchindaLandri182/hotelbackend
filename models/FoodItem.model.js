@@ -1,4 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const FoodItemSchema = new Schema({
   hotel: { type: Schema.Types.ObjectId, ref: 'Hotel', required: true },
@@ -17,4 +18,4 @@ const FoodItemSchema = new Schema({
   frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('FoodItem', FoodItemSchema)
+module.exports = mongoose.model('FoodItem', FoodItemSchema);

@@ -1,5 +1,4 @@
-
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const NotificationSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -17,7 +16,7 @@ const NotificationSchema = new mongoose.Schema({
     relatedEntityType: { type: String },
     deleted: { type: Boolean, default: false },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    frontendDateTime: { type: Date } // For offline sync
+    frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Notification', NotificationSchema)
+module.exports = mongoose.model('Notification', NotificationSchema);

@@ -1,6 +1,5 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-// To be modified have some problem
 const OrderItemSchema = new mongoose.Schema({
   stay: { type: mongoose.Schema.Types.ObjectId, ref: 'Stay', required: true },
   foodItem: { type: mongoose.Schema.Types.ObjectId, ref: 'FoodItem', required: true },
@@ -14,8 +13,7 @@ const OrderItemSchema = new mongoose.Schema({
   },
   deleted: { type: Boolean, default: false },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  frontendDateTime: { type: Date } // For offline sync
+  frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-
-module.exports = mongoose.model('Orderitem', OrderItemSchema)
+module.exports = mongoose.model('OrderItem', OrderItemSchema);

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const ClientSchema = new Schema({
@@ -11,7 +11,8 @@ const ClientSchema = new Schema({
   cityOfResidence: { type: String, required: true },
   profession: { type: String, required: true },
   adresse: { type: String, required: true },
-  nCNI: { type: String, required: true, unique: true },
+  tel: { type: String },
+  nIDC: { type: String, required: true, unique: true },
   dateOfDelivrance: { type: Date, required: true },
   placeOfDelivrance: { type: String, required: true },
   deleted: { type: Boolean, default: false },
@@ -19,4 +20,4 @@ const ClientSchema = new Schema({
   frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Client', ClientSchema)
+module.exports = mongoose.model('Client', ClientSchema);

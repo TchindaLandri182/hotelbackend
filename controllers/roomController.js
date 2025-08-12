@@ -1,6 +1,6 @@
-const Stay = require('../models/Reservation.model');
 const Stay = require('../models/Stay.model');
 const Room = require('../models/Room.model');
+const { createLog, logAction } = require('../services/logService');
 
 const getRooms = async (req, res) => {
   try {
@@ -23,28 +23,21 @@ const getRooms = async (req, res) => {
       .limit(parseInt(limit));
 
     if (type === 'overview') {
-      // const today = new Date()
-      // const tommorow = new Date().getDate(today + 1)
       const enhancedRooms = await Promise.all(rooms.map(async (room) => {
         let status = 'available';
         let user = null;
         let endDate = null;
 
-        const reservation = await Stay.findOne({ 
-          roomId: room._id, 
-          status: 'confirmed'
+        const stay = await Stay.findOne({ 
+          room: room._id,
+          status: { $in: ['confirmed', 'in-progress'] },
+          deleted: false
         });
-        if (reservation) {
-          status = 'reserve';
-          user = reservation.clientId;
-          endDate = reservation.endDate;
-        }
-
-        const stay = await Stay.findOne({ room: room._id });
+        
         if (stay) {
-          status = 'occupied';
+          status = stay.status === 'in-progress' ? 'occupied' : 'reserved';
           user = stay.client;
-          endDate = stay.checkInDate;
+          endDate = stay.endDate;
         }
 
         if (room.isInMaintenance) status = 'maintenance';
@@ -52,93 +45,105 @@ const getRooms = async (req, res) => {
         return { ...room.toObject(), status, user, endDate };
       }));
 
-      res.json(enhancedRooms);
+      res.json({messageCode: 'MSG_0003', rooms: enhancedRooms});
     } else if (type === 'detail') {
       const enhancedRooms = await Promise.all(rooms.map(async (room) => {
-        const reservations = await Stay.find({ roomId: room._id });
-        const stays = await Stay.find({ room: room._id });
+        const stays = await Stay.find({ room: room._id, deleted: false });
 
-        const totalNights = reservations.reduce((sum, r) => sum + (r.endDate - r.startDate) / (1000 * 60 * 60 * 24), 0) +
-                            stays.reduce((sum, s) => sum + (s.checkOutDate - s.checkInDate) / (1000 * 60 * 60 * 24), 0);
+        const totalNights = stays.reduce((sum, s) => {
+          const nights = (new Date(s.endDate) - new Date(s.startDate)) / (1000 * 60 * 60 * 24);
+          return sum + nights;
+        }, 0);
 
-        const occupancyRate = totalNights / ((new Date() - room.createdAt) / (1000 * 60 * 60 * 24));
-        const revenue = reservations.length * room.category.basePrice;
+        const daysSinceCreation = (new Date() - room.createdAt) / (1000 * 60 * 60 * 24);
+        const occupancyRate = daysSinceCreation > 0 ? (totalNights / daysSinceCreation * 100).toFixed(2) : 0;
+        const revenue = stays.length * (room.category?.basePrice || 0);
 
         return {
           ...room.toObject(),
           occupancyRate,
           totalNights,
           totalStays: stays.length,
-          totalReservations: reservations.length,
           revenue
         };
       }));
 
-      res.json(enhancedRooms);
+      res.json({messageCode: 'MSG_0003', rooms: enhancedRooms});
     } else {
-      res.json(rooms);
+      res.json({messageCode: 'MSG_0003', rooms});
     }
   } catch (error) {
-    console.error(error)
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
+    console.error(error);
+    res.status(500).json({messageCode: 'MSG_0001', message: error.message });
   }
 };
 
+const createRoom = [
+  async (req, res) => {
+    try {
+      const { hotel, category, roomNumber } = req.body;
+      const newRoom = new Room({ 
+        hotel, 
+        category, 
+        roomNumber,
+        createdBy: req.user._id
+      });
+      await newRoom.save();
+      
+      res.locals.newId = newRoom._id;
+      res.status(201).json({messageCode: 'MSG_0031', room: newRoom});
+    } catch (error) {
+      res.status(500).json({messageCode: 'MSG_0001', message: error.message });
+    }
+  },
+  logAction('CREATE_ROOM', 'Room')
+];
 
-const createRoom = async (req, res) => {
-  try {
-    const { hotel, category, roomNumber } = req.body;
-    const newRoom = new Room({ hotel, category, roomNumber });
-    await newRoom.save();
-    res.status(201).json(newRoom);
-  } catch (error) {
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
-  }
-};
+const updateRoom = [
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updatedRoom = await Room.findByIdAndUpdate(id, req.body, { new: true });
+      if (!updatedRoom) return res.status(404).json({messageCode: 'MSG_0032', message: 'Room not found' });
+      res.json({messageCode: 'MSG_0033', room: updatedRoom});
+    } catch (error) {
+      res.status(500).json({messageCode: 'MSG_0001', message: error.message });
+    }
+  },
+  logAction('UPDATE_ROOM', 'Room')
+];
 
-
-const updateRoom = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedRoom = await Room.findByIdAndUpdate(id, req.body, { new: true });
-    if (!updatedRoom) return res.status(404).json({messageCode: 'MSG_0032', message: 'Room not found' });
-    res.json(updatedRoom);
-  } catch (error) {
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
-  }
-};
-
-
-const deleteRoom = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedRoom = await Room.findByIdAndUpdate(id, { deleted: true }, { new: true });
-    if (!deletedRoom) return res.status(404).json({messageCode: 'MSG_0032', message: 'Room not found' });
-    res.json({messageCode: 'MSG_0035', message: 'Room deleted successfully' });
-  } catch (error) {
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
-  }
-};
-
+const deleteRoom = [
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deletedRoom = await Room.findByIdAndUpdate(id, { deleted: true }, { new: true });
+      if (!deletedRoom) return res.status(404).json({messageCode: 'MSG_0032', message: 'Room not found' });
+      res.json({messageCode: 'MSG_0035', message: 'Room deleted' });
+    } catch (error) {
+      res.status(500).json({messageCode: 'MSG_0001', message: error.message });
+    }
+  },
+  logAction('DELETE_ROOM', 'Room')
+];
 
 const getRoom = async (req, res) => {
   try {
     const { id } = req.params;
     const room = await Room.findById(id).populate('hotel category');
     if (!room) return res.status(404).json({messageCode: 'MSG_0032', message: 'Room not found' });
-    res.json(room);
+    res.json({messageCode: 'MSG_0003', room});
   } catch (error) {
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
+    res.status(500).json({messageCode: 'MSG_0001', message: error.message });
   }
 };
-
 
 const getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.find({ deleted: false }).populate('hotel category');
-    res.json(rooms);
+    res.json({messageCode: 'MSG_0003', rooms});
   } catch (error) {
-    res.status(500).json({messageCode: 'MSG_0003', message: error.message });
+    res.status(500).json({messageCode: 'MSG_0001', message: error.message });
   }
 };
 
@@ -149,4 +154,4 @@ module.exports = {
   createRoom,
   deleteRoom,
   updateRoom
-}
+};

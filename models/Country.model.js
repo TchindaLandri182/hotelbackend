@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const CountrySchema = new mongoose.Schema({
     name: { 
@@ -10,4 +11,4 @@ const CountrySchema = new mongoose.Schema({
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Country', CountrySchema)
+module.exports = mongoose.model('Country', CountrySchema);

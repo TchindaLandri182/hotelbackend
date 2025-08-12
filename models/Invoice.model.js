@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-//Likely to be modified
 const InvoiceSchema = new Schema({
   stay: { type: Schema.Types.ObjectId, ref: 'Stay', required: true },
   totalAmount: { type: Number, required: true },
@@ -18,4 +18,4 @@ const InvoiceSchema = new Schema({
   frontendDateTime: { type: Date }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Invoice', InvoiceSchema)
+module.exports = mongoose.model('Invoice', InvoiceSchema);
