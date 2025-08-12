@@ -147,6 +147,7 @@ function App() {
                   
                   {/* User Guide */}
                   <Route path="user-guide" element={<UserGuide />} />
+                }
                 </Route>
                 
                 {/* Catch all route */}
