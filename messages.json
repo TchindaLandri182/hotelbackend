@@ -1,0 +1,402 @@
+{
+  "MSG_0001": {
+    "en": "Server error",
+    "fr": ""
+  },
+  "MSG_0002": {
+    "en": "Log not found",
+    "fr": ""
+  },
+  "MSG_0003": {
+    "en": "Operation completed",
+    "fr": ""
+  },
+  "MSG_0004": {
+    "en": "Hotel not found",
+    "fr": ""
+  },
+  "MSG_0005": {
+    "en": "Invalid category. Valid options: food, beverage",
+    "fr": ""
+  },
+  "MSG_0006": {
+    "en": "Food item created successfully",
+    "fr": ""
+  },
+  "MSG_0007": {
+    "en": "Food item not found",
+    "fr": ""
+  },
+  "MSG_0008": {
+    "en": "Food item updated successfully",
+    "fr": ""
+  },
+  "MSG_0009": {
+    "en": "Food item deleted successfully",
+    "fr": ""
+  },
+  "MSG_0010": {
+    "en": "Stay not found",
+    "fr": ""
+  },
+  "MSG_0011": {
+    "en": "Each payment must have amountPaid, datePaid, and method",
+    "fr": ""
+  },
+  "MSG_0012": {
+    "en": "Invoice created successfully",
+    "fr": ""
+  },
+  "MSG_0013": {
+    "en": "Invoice not found",
+    "fr": ""
+  },
+  "MSG_0014": {
+    "en": "Invalid payment status",
+    "fr": ""
+  },
+  "MSG_0015": {
+    "en": "Invoice updated successfully",
+    "fr": ""
+  },
+  "MSG_0016": {
+    "en": "Invoice deleted successfully",
+    "fr": ""
+  },
+  "MSG_0017": {
+    "en": "Invalid status",
+    "fr": ""
+  },
+  "MSG_0018": {
+    "en": "Order item created successfully",
+    "fr": ""
+  },
+  "MSG_0019": {
+    "en": "Order item not found",
+    "fr": ""
+  },
+  "MSG_0020": {
+    "en": "Order item updated successfully",
+    "fr": ""
+  },
+  "MSG_0021": {
+    "en": "Order item deleted successfully",
+    "fr": ""
+  },
+  "MSG_0022": {
+    "en": "Invalid entity type. Valid options: Room, Food",
+    "fr": ""
+  },
+  "MSG_0023": {
+    "en": "End date must be after start date",
+    "fr": ""
+  },
+  "MSG_0024": {
+    "en": "Overlapping price period exists",
+    "fr": ""
+  },
+  "MSG_0025": {
+    "en": "Price period created successfully",
+    "fr": ""
+  },
+  "MSG_0026": {
+    "en": "Price period not found",
+    "fr": ""
+  },
+  "MSG_0027": {
+    "en": "Price period updated successfully",
+    "fr": ""
+  },
+  "MSG_0028": {
+    "en": "Price period deleted successfully",
+    "fr": ""
+  },
+  "MSG_0029": {
+    "en": "Category not found",
+    "fr": ""
+  },
+  "MSG_0030": {
+    "en": "Room number already exists in this hotel",
+    "fr": ""
+  },
+  "MSG_0031": {
+    "en": "Room created successfully",
+    "fr": ""
+  },
+  "MSG_0032": {
+    "en": "Room not found",
+    "fr": ""
+  },
+  "MSG_0033": {
+    "en": "Room updated successfully",
+    "fr": ""
+  },
+  "MSG_0034": {
+    "en": "Cannot delete room with active reservations",
+    "fr": ""
+  },
+  "MSG_0035": {
+    "en": "Room deleted successfully",
+    "fr": ""
+  },
+  "MSG_0036": {
+    "en": "City not found",
+    "fr": ""
+  },
+  "MSG_0037": {
+    "en": "Zone created successfully",
+    "fr": ""
+  },
+  "MSG_0038": {
+    "en": "Zone not found",
+    "fr": ""
+  },
+  "MSG_0039": {
+    "en": "Zone updated successfully",
+    "fr": ""
+  },
+  "MSG_0040": {
+    "en": "Cannot delete zone with associated hotels",
+    "fr": ""
+  },
+  "MSG_0041": {
+    "en": "Zone deleted successfully",
+    "fr": ""
+  },
+  "MSG_0042": {
+    "en": "One or more owners are invalid",
+    "fr": ""
+  },
+  "MSG_0043": {
+    "en": "Hotel created successfully",
+    "fr": ""
+  },
+  "MSG_0044": {
+    "en": "Hotel updated successfully",
+    "fr": ""
+  },
+  "MSG_0045": {
+    "en": "Hotel deleted successfully",
+    "fr": ""
+  },
+  "MSG_0046": {
+    "en": "Email is required",
+    "fr": ""
+  },
+  "MSG_0047": {
+    "en": "Password is required",
+    "fr": ""
+  },
+  "MSG_0048": {
+    "en": "Invalid credentials",
+    "fr": ""
+  },
+  "MSG_0049": {
+    "en": "You cannot invite this role",
+    "fr": ""
+  },
+  "MSG_0050": {
+    "en": "Invalid or expired token",
+    "fr": ""
+  },
+  "MSG_0051": {
+    "en": "Email already registered",
+    "fr": ""
+  },
+  "MSG_0052": {
+    "en": "Account created. Please verify your email.",
+    "fr": ""
+  },
+  "MSG_0053": {
+    "en": "User not found",
+    "fr": ""
+  },
+  "MSG_0054": {
+    "en": "Email already verified",
+    "fr": ""
+  },
+  "MSG_0055": {
+    "en": "Invalid verification code",
+    "fr": ""
+  },
+  "MSG_0056": {
+    "en": "Verification code expired",
+    "fr": ""
+  },
+  "MSG_0057": {
+    "en": "First name and last name are required",
+    "fr": ""
+  },
+  "MSG_0058": {
+    "en": "You cannot manage this user",
+    "fr": ""
+  },
+  "MSG_0059": {
+    "en": "You cannot delete this user",
+    "fr": ""
+  },
+  "MSG_0060": {
+    "en": "User deleted",
+    "fr": ""
+  },
+  "MSG_0061": {
+    "en": "Unauthorized",
+    "fr": ""
+  },
+  "MSG_0062": {
+    "en": "Permission denied",
+    "fr": ""
+  },
+  "MSG_0063": {
+    "en": "Invalid email format",
+    "fr": ""
+  },
+  "MSG_0064": {
+    "en": "Password not strong enough",
+    "fr": ""
+  },
+  "MSG_0065": {
+    "en": "User created. Please verify your email.",
+    "fr": ""
+  },
+  "MSG_0066": {
+    "en": "Password reset email sent",
+    "fr": ""
+  },
+  "MSG_0067": {
+    "en": "Token and new password required",
+    "fr": ""
+  },
+  "MSG_0068": {
+    "en": "Password reset successfully",
+    "fr": ""
+  },
+  "MSG_0069": {
+    "en": "Reset token expired",
+    "fr": ""
+  },
+  "MSG_0070": {
+    "en": "Invalid token",
+    "fr": ""
+  },
+  "MSG_0071": {
+    "en": "Verification email resent",
+    "fr": ""
+  },
+  "MSG_0072": {
+    "en": "Category deleted",
+    "fr": ""
+  },
+  "MSG_0073": {
+    "en": "Not authorized",
+    "fr": ""
+  },
+  "MSG_0074": {
+    "en": "Hotel is required",
+    "fr": ""
+  },
+  "MSG_0075": {
+    "en": "Name is required",
+    "fr": ""
+  },
+  "MSG_0076": {
+    "en": "Description is required",
+    "fr": ""
+  },
+  "MSG_0077": {
+    "en": "basePrice is invalid",
+    "fr": ""
+  },
+  "MSG_0078": {
+    "en": "Hotel not Found",
+    "fr": ""
+  },
+  "MSG_0079": {
+    "en": "Room Category not found",
+    "fr": ""
+  },
+  "MSG_0080": {
+    "en": "Room Category Not found",
+    "fr": ""
+  },
+  "MSG_0081": {
+    "en": "Deleted successfully",
+    "fr": ""
+  },
+  "MSG_0082": {
+    "en": "Room Categories Not found",
+    "fr": ""
+  },
+  "MSG_0083": {
+    "en": "All required fields must be filled",
+    "fr": ""
+  },
+  "MSG_0084": {
+    "en": "Client not found",
+    "fr": ""
+  },
+  "MSG_0085": {
+    "en": "Client deleted",
+    "fr": ""
+  },
+  "MSG_0086": {
+    "en": "Hotel ID is required",
+    "fr": ""
+  },
+  "MSG_0087": {
+    "en": "Room not available",
+    "fr": ""
+  },
+  "MSG_0088": {
+    "en": "Room already occupied for this period",
+    "fr": ""
+  },
+  "MSG_0089": {
+    "en": "Stay created successfully",
+    "fr": ""
+  },
+  "MSG_0090": {
+    "en": "Cannot update completed stay",
+    "fr": ""
+  },
+  "MSG_0091": {
+    "en": "Stay updated successfully",
+    "fr": ""
+  },
+  "MSG_0092": {
+    "en": "Cannot delete in-progress or completed stays",
+    "fr": ""
+  },
+  "MSG_0093": {
+    "en": "Stay deleted successfully",
+    "fr": ""
+  },
+  "MSG_0094": {
+    "en": "Missing permissions",
+    "fr": ""
+  },
+  "MSG_0095": {
+    "en": "Forbidden",
+    "fr": ""
+  },
+  "MSG_0096": {
+    "en": "Your account have been blocked contack your administrator for more detailed",
+    "fr": ""
+  },
+  "MSG_0097": {
+    "en": "Access denied: insufficient permissions",
+    "fr": ""
+  },
+  "MSG_0098": {
+    "en": "Unauthorized: No user information found",
+    "fr": ""
+  },
+  "MSG_0099": {
+    "en": "Forbidden: Insufficient permissions",
+    "fr": ""
+  },
+  "MSG_0100": {
+    "en": "Internal server error during permission validation",
+    "fr": ""
+  }
+}
