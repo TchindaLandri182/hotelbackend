@@ -38,6 +38,12 @@ import PricePeriods from './pages/PricePeriods/PricePeriods';
 import PricePeriodForm from './pages/PricePeriods/PricePeriodForm';
 import Zones from './pages/Zones/Zones';
 import ZoneForm from './pages/Zones/ZoneForm';
+import Regions from './pages/Regions/Regions';
+import RegionForm from './pages/Regions/RegionForm';
+import Cities from './pages/Cities/Cities';
+import CityForm from './pages/Cities/CityForm';
+import Countries from './pages/Countries/Countries';
+import CountryForm from './pages/Countries/CountryForm';
 import Users from './pages/Users/Users';
 import UserForm from './pages/Users/UserForm';
 import Permissions from './pages/Permissions/Permissions';
@@ -133,6 +139,21 @@ function App() {
                   <Route path="zones" element={<Zones />} />
                   <Route path="zones/create" element={<ZoneForm />} />
                   <Route path="zones/edit/:id" element={<ZoneForm />} />
+                  
+                  {/* Regions */}
+                  <Route path="regions" element={<Regions />} />
+                  <Route path="regions/create" element={<RegionForm />} />
+                  <Route path="regions/edit/:id" element={<RegionForm />} />
+                  
+                  {/* Cities */}
+                  <Route path="cities" element={<Cities />} />
+                  <Route path="cities/create" element={<CityForm />} />
+                  <Route path="cities/edit/:id" element={<CityForm />} />
+                  
+                  {/* Countries */}
+                  <Route path="countries" element={<Countries />} />
+                  <Route path="countries/create" element={<CountryForm />} />
+                  <Route path="countries/edit/:id" element={<CountryForm />} />
                   
                   {/* Users */}
                   <Route path="users" element={<Users />} />

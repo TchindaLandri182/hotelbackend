@@ -96,6 +96,24 @@ const Sidebar = () => {
       permission: 1402 // readLocation
     },
     {
+      name: t('navigation.regions'),
+      href: '/regions',
+      icon: MapPinIcon,
+      permission: 1402 // readLocation
+    },
+    {
+      name: t('navigation.cities'),
+      href: '/cities',
+      icon: MapPinIcon,
+      permission: 1402 // readLocation
+    },
+    {
+      name: t('navigation.countries'),
+      href: '/countries',
+      icon: MapPinIcon,
+      permission: 1402 // readLocation
+    },
+    {
       name: t('navigation.users'),
       href: '/users',
       icon: UsersIcon,

@@ -22,6 +22,9 @@ const invoiceRoute = require('./routes/invoiceRoute');
 const orderItemRoute = require('./routes/orderItemRoute');
 const pricePeriodRoute = require('./routes/pricePeriodRoute');
 const zoneRoute = require('./routes/zoneRoute');
+const regionRoute = require('./routes/regionRoute');
+const cityRoute = require('./routes/cityRoute');
+const countryRoute = require('./routes/countryRoute');
 const logRoute = require('./routes/logRoute');
 
 // Middleware
@@ -41,6 +44,9 @@ app.use('/api/invoice', invoiceRoute);
 app.use('/api/order-item', orderItemRoute);
 app.use('/api/price-period', pricePeriodRoute);
 app.use('/api/zone', zoneRoute);
+app.use('/api/region', regionRoute);
+app.use('/api/city', cityRoute);
+app.use('/api/country', countryRoute);
 app.use('/api/log', logRoute);
 
 // Database connection and server start
