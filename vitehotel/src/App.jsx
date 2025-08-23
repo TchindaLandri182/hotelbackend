@@ -18,34 +18,37 @@ import Hotels from './pages/Hotels/Hotels'
 import HotelForm from './pages/Hotels/HotelForm'
 import Rooms from './pages/Rooms/Rooms'
 import RoomForm from './pages/Rooms/RoomForm'
-// import Categories from './pages/Categories/Categories'
-// import CategoryForm from './pages/Categories/CategoryForm'
-// import Clients from './pages/Clients/Clients'
-// import ClientForm from './pages/Clients/ClientForm'
-// import Stays from './pages/Stays/Stays'
-// import StayForm from './pages/Stays/StayForm'
-// import Invoices from './pages/Invoices/Invoices'
-// import InvoiceForm from './pages/Invoices/InvoiceForm'
+import Categories from './pages/Categories/Categories'
+import CategoryForm from './pages/Categories/CategoryForm'
+import Clients from './pages/Clients/Clients'
+import ClientForm from './pages/Clients/ClientForm'
+import Stays from './pages/Stays/Stays'
+import StayForm from './pages/Stays/StayForm'
+import Invoices from './pages/Invoices/Invoices'
+import InvoiceForm from './pages/Invoices/InvoiceForm'
 import FoodItems from './pages/FoodItems/FoodItems'
 import FoodItemForm from './pages/FoodItems/FoodItemForm'
 import OrderItems from './pages/OrderItems/OrderItems'
 import OrderItemForm from './pages/OrderItems/OrderItemForm'
 import PricePeriods from './pages/PricePeriods/PricePeriods'
-// import PricePeriodForm from './pages/PricePeriods/PricePeriodForm'
-// import Zones from './pages/Zones/Zones'
-// import ZoneForm from './pages/Zones/ZoneForm'
-// import Regions from './pages/Regions/Regions'
-// import RegionForm from './pages/Regions/RegionForm'
-// import Cities from './pages/Cities/Cities'
-// import CityForm from './pages/Cities/CityForm'
-// import Countries from './pages/Countries/Countries'
-// import CountryForm from './pages/Countries/CountryForm'
-// import Users from './pages/Users/Users'
-// import UserForm from './pages/Users/UserForm'
-// import Permissions from './pages/Permissions/Permissions'
-// import Settings from './pages/Settings/Settings'
-// import UserGuide from './pages/UserGuide/UserGuide'
-// import Reports from './pages/Reports/Reports'
+import PricePeriodForm from './pages/PricePeriods/PricePeriodForm'
+import Zones from './pages/Zones/Zones'
+import ZoneForm from './pages/Zones/ZoneForm'
+import Regions from './pages/Regions/Regions'
+import RegionForm from './pages/Regions/RegionForm'
+import Cities from './pages/Cities/Cities'
+import CityForm from './pages/Cities/CityForm'
+import Countries from './pages/Countries/Countries'
+import CountryForm from './pages/Countries/CountryForm'
+import Users from './pages/Users/Users'
+import UserForm from './pages/Users/UserForm'
+import Permissions from './pages/Permissions/Permissions'
+import Settings from './pages/Settings/Settings'
+import UserGuide from './pages/UserGuide/UserGuide'
+import Reports from './pages/Reports/Reports'
+import ForgotPassword from './pages/Auth/ForgotPassword'
+import ResetPassword from './pages/Auth/ResetPassword'
+import SignupInvite from './pages/Auth/SignupInvite'
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
@@ -89,11 +92,14 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/signup/invite" element={<SignupInvite />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/complete-profile" element={<CompleteProfile />} />
         
         {/* Protected Routes */}
-        {/* <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>*/}
+        <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           
@@ -108,24 +114,24 @@ function App() {
           <Route path="rooms/edit/:id" element={<RoomForm />} />
           
           {/* Categories */}
-          {/*<Route path="categories" element={<Categories />} />
+          <Route path="categories" element={<Categories />} />
           <Route path="categories/create" element={<CategoryForm />} />
-          <Route path="categories/edit/:id" element={<CategoryForm />} />*/}
+          <Route path="categories/edit/:id" element={<CategoryForm />} />
           
           {/* Clients */}
-          {/*<Route path="clients" element={<Clients />} />
+          <Route path="clients" element={<Clients />} />
           <Route path="clients/create" element={<ClientForm />} />
-          <Route path="clients/edit/:id" element={<ClientForm />} />*/}
+          <Route path="clients/edit/:id" element={<ClientForm />} />
           
           {/* Stays */}
-          {/*<Route path="stays" element={<Stays />} />
+          <Route path="stays" element={<Stays />} />
           <Route path="stays/create" element={<StayForm />} />
-          <Route path="stays/edit/:id" element={<StayForm />} />*/}
+          <Route path="stays/edit/:id" element={<StayForm />} />
           
           {/* Invoices */}
-          {/*<Route path="invoices" element={<Invoices />} />
+          <Route path="invoices" element={<Invoices />} />
           <Route path="invoices/create" element={<InvoiceForm />} />
-          <Route path="invoices/edit/:id" element={<InvoiceForm />} />*/}
+          <Route path="invoices/edit/:id" element={<InvoiceForm />} />
           
           {/* Food Items */}
           <Route path="food-items" element={<FoodItems />} />
@@ -139,46 +145,46 @@ function App() {
           
           {/* Price Periods */}
           <Route path="price-periods" element={<PricePeriods />} />
-          {/*<Route path="price-periods/create" element={<PricePeriodForm />} />
-          <Route path="price-periods/edit/:id" element={<PricePeriodForm />} />*/}
+          <Route path="price-periods/create" element={<PricePeriodForm />} />
+          <Route path="price-periods/edit/:id" element={<PricePeriodForm />} />
           
           {/* Zones */}
-          {/*<Route path="zones" element={<Zones />} />
+          <Route path="zones" element={<Zones />} />
           <Route path="zones/create" element={<ZoneForm />} />
-          <Route path="zones/edit/:id" element={<ZoneForm />} />*/}
+          <Route path="zones/edit/:id" element={<ZoneForm />} />
           
           {/* Regions */}
-          {/*<Route path="regions" element={<Regions />} />
+          <Route path="regions" element={<Regions />} />
           <Route path="regions/create" element={<RegionForm />} />
-          <Route path="regions/edit/:id" element={<RegionForm />} />*/}
+          <Route path="regions/edit/:id" element={<RegionForm />} />
           
           {/* Cities */}
-          {/*<Route path="cities" element={<Cities />} />
+          <Route path="cities" element={<Cities />} />
           <Route path="cities/create" element={<CityForm />} />
-          <Route path="cities/edit/:id" element={<CityForm />} />*/}
+          <Route path="cities/edit/:id" element={<CityForm />} />
           
           {/* Countries */}
-          {/*<Route path="countries" element={<Countries />} />
+          <Route path="countries" element={<Countries />} />
           <Route path="countries/create" element={<CountryForm />} />
-          <Route path="countries/edit/:id" element={<CountryForm />} />*/}
+          <Route path="countries/edit/:id" element={<CountryForm />} />
           
           {/* Users */}
-          {/*<Route path="users" element={<Users />} />
+          <Route path="users" element={<Users />} />
           <Route path="users/create" element={<UserForm />} />
-          <Route path="users/edit/:id" element={<UserForm />} />*/}
+          <Route path="users/edit/:id" element={<UserForm />} />
           
           {/* Permissions */}
-          {/*<Route path="permissions" element={<Permissions />} />*/}
+          <Route path="permissions" element={<Permissions />} />
           
           {/* Reports */}
-          {/*<Route path="reports" element={<Reports />} />*/}
+          <Route path="reports" element={<Reports />} />
           
           {/* Settings */}
-          {/*<Route path="settings" element={<Settings />} />*/}
+          <Route path="settings" element={<Settings />} />
           
           {/* User Guide */}
-          {/*<Route path="user-guide" element={<UserGuide />} />*/}
-        {/*</Route>*/}
+          <Route path="user-guide" element={<UserGuide />} />
+        </Route>
         
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

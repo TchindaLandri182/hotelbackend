@@ -8,6 +8,8 @@ import invoiceReducer from './slices/invoiceSlice'
 import foodItemReducer from './slices/foodItemSlice'
 import orderItemReducer from './slices/orderItemSlice'
 import locationReducer from './slices/locationSlice'
+import categoryReducer from './slices/categorySlice'
+import userReducer from './slices/userSlice'
 import uiReducer from './slices/uiSlice'
 
 export const store = configureStore({
@@ -21,6 +23,8 @@ export const store = configureStore({
     foodItems: foodItemReducer,
     orderItems: orderItemReducer,
     locations: locationReducer,
+    categories: categoryReducer,
+    users: userReducer,
     ui: uiReducer,
   },
   middleware: (getDefaultMiddleware) =>
