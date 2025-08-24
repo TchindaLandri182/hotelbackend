@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
@@ -17,17 +17,16 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material'
-import { Eye, EyeOff, Hotel } from 'lucide-react'
-import { loginUser, clearError } from '../../store/slices/authSlice'
+import { Eye, EyeOff, Hotel, ArrowLeft } from 'lucide-react'
 
 const Login = () => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
+  const { login, loading, requiresVerification, requiresProfileCompletion } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   
-  const { loading, error, requiresVerification, requiresProfileCompletion } = useSelector(state => state.auth)
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
 
   const from = location.state?.from?.pathname || '/dashboard'
 
@@ -40,17 +39,19 @@ const Login = () => {
   })
 
   const handleSubmit = async (values) => {
-    dispatch(clearError())
-    const result = await dispatch(loginUser(values))
-    
-    if (result.type === 'auth/login/fulfilled') {
-      if (requiresVerification) {
+    setError('')
+    try {
+      const result = await login(values.email, values.password)
+      
+      if (result.requiresVerification) {
         navigate('/verify-email')
-      } else if (requiresProfileCompletion) {
+      } else if (result.requiresProfileCompletion) {
         navigate('/complete-profile')
-      } else {
+      } else if (result.success) {
         navigate(from, { replace: true })
       }
+    } catch (err) {
+      setError(err.message)
     }
   }
 
@@ -191,6 +192,7 @@ const Login = () => {
                     },
                     fontWeight: 600,
                     textTransform: 'none',
+                    mb: 3,
                   }}
                 >
                   {loading ? (
@@ -199,6 +201,30 @@ const Login = () => {
                     t('auth.sign_in')
                   )}
                 </Button>
+
+                <Box sx={{ textAlign: 'center' }}>
+                  <Button
+                    component={Link}
+                    to="/"
+                    startIcon={<ArrowLeft size={16} />}
+                    sx={{ textTransform: 'none', mb: 2 }}
+                  >
+                    Back to Home
+                  </Button>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('auth.dont_have_account')}{' '}
+                    <Link 
+                      to="/signup"
+                      style={{ 
+                        color: '#2563eb',
+                        textDecoration: 'none',
+                        fontWeight: 500
+                      }}
+                    >
+                      {t('auth.sign_up')}
+                    </Link>
+                  </Typography>
+                </Box>
               </Box>
             </Form>
           )}

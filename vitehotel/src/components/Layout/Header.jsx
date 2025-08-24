@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import {
   AppBar,
@@ -14,8 +15,6 @@ import {
   Divider,
   ListItemIcon,
   ListItemText,
-  Switch,
-  FormControlLabel,
 } from '@mui/material'
 import {
   Bell,
@@ -27,33 +26,38 @@ import {
   Settings,
   Menu as MenuIcon,
 } from 'lucide-react'
-import { setTheme, setLanguage, toggleSidebar } from '../../store/slices/uiSlice'
-import { logout } from '../../store/slices/authSlice'
+import { hasPermission } from '../../utils/auth'
 
 const Header = () => {
   const { t, i18n } = useTranslation()
-  const dispatch = useDispatch()
-  const { user } = useSelector(state => state.auth)
-  const { theme, sidebarCollapsed } = useSelector(state => state.ui)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null)
   const [languageMenuAnchor, setLanguageMenuAnchor] = useState(null)
   const [notificationMenuAnchor, setNotificationMenuAnchor] = useState(null)
+  const [theme, setTheme] = useState('light')
 
   const handleThemeToggle = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
-    dispatch(setTheme(newTheme))
+    setTheme(newTheme)
+    
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
   }
 
   const handleLanguageChange = (lng) => {
     i18n.changeLanguage(lng)
-    dispatch(setLanguage(lng))
     setLanguageMenuAnchor(null)
   }
 
   const handleLogout = () => {
-    dispatch(logout())
+    logout()
     setProfileMenuAnchor(null)
+    navigate('/')
   }
 
   const notifications = [
@@ -75,15 +79,6 @@ const Header = () => {
     >
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <IconButton
-            onClick={() => dispatch(toggleSidebar())}
-            sx={{ 
-              mr: 2,
-              color: theme === 'dark' ? 'grey.300' : 'grey.700'
-            }}
-          >
-            <MenuIcon size={24} />
-          </IconButton>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
             {t('dashboard.title')}
           </Typography>
@@ -192,13 +187,13 @@ const Header = () => {
             </Typography>
           </Box>
           <Divider />
-          <MenuItem onClick={() => { navigate('/settings'); setProfileMenuAnchor(null) }}>
+          <MenuItem onClick={() => { navigate('/dashboard/settings'); setProfileMenuAnchor(null) }}>
             <ListItemIcon>
               <User size={18} />
             </ListItemIcon>
             <ListItemText primary={t('navigation.profile')} />
           </MenuItem>
-          <MenuItem onClick={() => { navigate('/settings'); setProfileMenuAnchor(null) }}>
+          <MenuItem onClick={() => { navigate('/dashboard/settings'); setProfileMenuAnchor(null) }}>
             <ListItemIcon>
               <Settings size={18} />
             </ListItemIcon>

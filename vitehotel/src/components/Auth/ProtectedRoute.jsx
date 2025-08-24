@@ -1,17 +1,11 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../../contexts/AuthContext'
 import { Box, CircularProgress, Typography } from '@mui/material'
-import { initializeAuth } from '../../store/slices/authSlice'
 
 const ProtectedRoute = ({ children }) => {
-  const dispatch = useDispatch()
-  const { user, loading } = useSelector(state => state.auth)
+  const { user, loading, isAuthenticated } = useAuth()
   const location = useLocation()
-
-  useEffect(() => {
-    dispatch(initializeAuth())
-  }, [dispatch])
 
   if (loading) {
     return (
@@ -30,7 +24,7 @@ const ProtectedRoute = ({ children }) => {
     )
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 

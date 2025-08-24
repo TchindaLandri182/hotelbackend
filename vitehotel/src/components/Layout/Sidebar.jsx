@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import {
   Box,
@@ -12,7 +12,6 @@ import {
   ListItemText,
   Typography,
   IconButton,
-  Divider,
   Avatar,
   useTheme,
   useMediaQuery,
@@ -36,24 +35,17 @@ import {
   BarChart3,
   Shield,
 } from 'lucide-react'
-import { toggleSidebar } from '../../store/slices/uiSlice'
+import { hasPermission } from '../../utils/auth'
 
 const Sidebar = () => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   
-  const { user } = useSelector(state => state.auth)
-  const { sidebarCollapsed, theme: currentTheme } = useSelector(state => state.ui)
-
-  const hasPermission = (permission) => {
-    if (!user) return false
-    if (user.role === 'admin') return true
-    return user.permissions && user.permissions.includes(permission)
-  }
+  const { user } = useAuth()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const navigationItems = [
     {
@@ -64,116 +56,116 @@ const Sidebar = () => {
     },
     {
       name: t('navigation.hotels'),
-      path: '/hotels',
+      path: '/dashboard/hotels',
       icon: Hotel,
       permission: 4002
     },
     {
       name: t('navigation.rooms'),
-      path: '/rooms',
+      path: '/dashboard/rooms',
       icon: Key,
       permission: 8002
     },
     {
       name: t('navigation.categories'),
-      path: '/categories',
+      path: '/dashboard/categories',
       icon: Tag,
       permission: 1002
     },
     {
       name: t('navigation.clients'),
-      path: '/clients',
+      path: '/dashboard/clients',
       icon: Users,
       permission: 2002
     },
     {
       name: t('navigation.stays'),
-      path: '/stays',
+      path: '/dashboard/stays',
       icon: Calendar,
       permission: 9002
     },
     {
       name: t('navigation.invoices'),
-      path: '/invoices',
+      path: '/dashboard/invoices',
       icon: FileText,
       permission: 5002
     },
     {
       name: t('navigation.food_items'),
-      path: '/food-items',
+      path: '/dashboard/food-items',
       icon: UtensilsCrossed,
       permission: 3002
     },
     {
       name: t('navigation.order_items'),
-      path: '/order-items',
+      path: '/dashboard/order-items',
       icon: ShoppingCart,
       permission: 6002
     },
     {
       name: t('navigation.price_periods'),
-      path: '/price-periods',
+      path: '/dashboard/price-periods',
       icon: DollarSign,
       permission: 7002
     },
     {
       name: t('navigation.zones'),
-      path: '/zones',
+      path: '/dashboard/zones',
       icon: MapPin,
       permission: 1402
     },
     {
       name: t('navigation.regions'),
-      path: '/regions',
+      path: '/dashboard/regions',
       icon: MapPin,
       permission: 1402
     },
     {
       name: t('navigation.cities'),
-      path: '/cities',
+      path: '/dashboard/cities',
       icon: MapPin,
       permission: 1402
     },
     {
       name: t('navigation.countries'),
-      path: '/countries',
+      path: '/dashboard/countries',
       icon: MapPin,
       permission: 1402
     },
     {
       name: t('navigation.users'),
-      path: '/users',
+      path: '/dashboard/users',
       icon: Users,
       permission: 1102
     },
     {
       name: t('navigation.permissions'),
-      path: '/permissions',
+      path: '/dashboard/permissions',
       icon: Shield,
       permission: 1701
     },
     {
       name: t('navigation.reports'),
-      path: '/reports',
+      path: '/dashboard/reports',
       icon: BarChart3,
       permission: 1702
     },
     {
       name: t('navigation.settings'),
-      path: '/settings',
+      path: '/dashboard/settings',
       icon: Settings,
       permission: null
     },
     {
       name: t('navigation.user_guide'),
-      path: '/user-guide',
+      path: '/dashboard/user-guide',
       icon: HelpCircle,
       permission: null
     }
   ]
 
   const filteredItems = navigationItems.filter(item => 
-    !item.permission || hasPermission(item.permission)
+    !item.permission || hasPermission(user, item.permission)
   )
 
   const drawerWidth = sidebarCollapsed ? 64 : 280
@@ -187,9 +179,9 @@ const Sidebar = () => {
       height: '100%', 
       display: 'flex', 
       flexDirection: 'column',
-      bgcolor: currentTheme === 'dark' ? 'grey.800' : 'white',
+      bgcolor: 'white',
       borderRight: 1,
-      borderColor: currentTheme === 'dark' ? 'grey.700' : 'grey.200'
+      borderColor: 'grey.200'
     }}>
       {/* Header */}
       <Box sx={{ 
@@ -198,7 +190,7 @@ const Sidebar = () => {
         alignItems: 'center', 
         justifyContent: 'space-between',
         borderBottom: 1,
-        borderColor: currentTheme === 'dark' ? 'grey.700' : 'grey.200'
+        borderColor: 'grey.200'
       }}>
         {!sidebarCollapsed && (
           <Typography variant="h6" sx={{ 
@@ -212,9 +204,9 @@ const Sidebar = () => {
           </Typography>
         )}
         <IconButton 
-          onClick={() => dispatch(toggleSidebar())}
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           size="small"
-          sx={{ color: currentTheme === 'dark' ? 'grey.400' : 'grey.600' }}
+          sx={{ color: 'grey.600' }}
         >
           {sidebarCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </IconButton>
@@ -235,10 +227,10 @@ const Sidebar = () => {
                     borderRadius: 2,
                     mx: 1,
                     mb: 0.5,
-                    bgcolor: isActive ? (currentTheme === 'dark' ? 'primary.dark' : 'primary.light') : 'transparent',
-                    color: isActive ? 'primary.contrastText' : (currentTheme === 'dark' ? 'grey.300' : 'grey.700'),
+                    bgcolor: isActive ? 'primary.light' : 'transparent',
+                    color: isActive ? 'primary.contrastText' : 'grey.700',
                     '&:hover': {
-                      bgcolor: isActive ? (currentTheme === 'dark' ? 'primary.dark' : 'primary.light') : (currentTheme === 'dark' ? 'grey.700' : 'grey.100'),
+                      bgcolor: isActive ? 'primary.light' : 'grey.100',
                     },
                     transition: 'all 0.2s ease-in-out',
                   }}
@@ -271,13 +263,13 @@ const Sidebar = () => {
         <Box sx={{ 
           p: 2, 
           borderTop: 1, 
-          borderColor: currentTheme === 'dark' ? 'grey.700' : 'grey.200'
+          borderColor: 'grey.200'
         }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
             p: 2, 
-            bgcolor: currentTheme === 'dark' ? 'grey.700' : 'grey.100',
+            bgcolor: 'grey.100',
             borderRadius: 2
           }}>
             <Avatar 
@@ -296,13 +288,13 @@ const Sidebar = () => {
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
               <Typography variant="body2" sx={{ 
                 fontWeight: 600,
-                color: currentTheme === 'dark' ? 'white' : 'grey.900',
+                color: 'grey.900',
                 noWrap: true
               }}>
                 {user.firstName} {user.lastName}
               </Typography>
               <Typography variant="caption" sx={{ 
-                color: currentTheme === 'dark' ? 'grey.400' : 'grey.600',
+                color: 'grey.600',
                 textTransform: 'capitalize'
               }}>
                 {user.role}
@@ -319,7 +311,7 @@ const Sidebar = () => {
       <Drawer
         variant="temporary"
         open={!sidebarCollapsed}
-        onClose={() => dispatch(toggleSidebar())}
+        onClose={() => setSidebarCollapsed(true)}
         ModalProps={{ keepMounted: true }}
         sx={{
           '& .MuiDrawer-paper': {

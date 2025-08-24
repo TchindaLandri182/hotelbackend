@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import {
   Box,
@@ -12,30 +12,31 @@ import {
   Alert,
 } from '@mui/material'
 import { Mail } from 'lucide-react'
-import { verifyEmail, clearError } from '../../store/slices/authSlice'
 
 const VerifyEmail = () => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
+  const { verifyEmail, loading, requiresProfileCompletion } = useAuth()
   const navigate = useNavigate()
   
-  const { loading, error, requiresProfileCompletion } = useSelector(state => state.auth)
   const [code, setCode] = useState('')
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (code.length !== 6) return
     
-    dispatch(clearError())
-    const result = await dispatch(verifyEmail(code))
-    
-    if (result.type === 'auth/verifyEmail/fulfilled') {
-      if (requiresProfileCompletion) {
+    setError('')
+    try {
+      const result = await verifyEmail(code)
+      
+      if (result.requiresProfileCompletion) {
         navigate('/complete-profile')
-      } else {
+      } else if (result.success) {
         navigate('/dashboard')
       }
+    } catch (err) {
+      setError(err.message)
     }
   }
 

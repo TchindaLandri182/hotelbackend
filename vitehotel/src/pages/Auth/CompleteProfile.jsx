@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { useAuth } from '../../contexts/AuthContext'
 import { useTranslation } from 'react-i18next'
 import { Formik, Form, Field } from 'formik'
 import * as Yup from 'yup'
@@ -16,16 +16,15 @@ import {
   Alert,
 } from '@mui/material'
 import { User, Camera } from 'lucide-react'
-import { completeProfile, clearError } from '../../store/slices/authSlice'
 
 const CompleteProfile = () => {
   const { t } = useTranslation()
-  const dispatch = useDispatch()
+  const { completeProfile, loading } = useAuth()
   const navigate = useNavigate()
   
-  const { loading, error } = useSelector(state => state.auth)
   const [imagePreview, setImagePreview] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [error, setError] = useState('')
 
   const validationSchema = Yup.object({
     firstName: Yup.string()
@@ -47,7 +46,7 @@ const CompleteProfile = () => {
   }
 
   const handleSubmit = async (values) => {
-    dispatch(clearError())
+    setError('')
     
     const profileData = {
       firstName: values.firstName,
@@ -55,10 +54,13 @@ const CompleteProfile = () => {
       profileImage: selectedFile,
     }
     
-    const result = await dispatch(completeProfile(profileData))
-    
-    if (result.type === 'auth/completeProfile/fulfilled') {
-      navigate('/dashboard')
+    try {
+      const result = await completeProfile(profileData)
+      if (result.success) {
+        navigate('/dashboard')
+      }
+    } catch (err) {
+      setError(err.message)
     }
   }
 
