@@ -207,6 +207,40 @@ export const logAPI = {
   getById: (id) => api.get(`/log/${id}`)
 }
 
+// Dashboard API
+export const dashboardAPI = {
+  getStats: () => api.get('/dashboard/stats'),
+  getRecentActivities: (params) => api.get('/dashboard/recent-activities', { params }),
+  getCalendarData: (params) => api.get('/dashboard/calendar-data', { params })
+}
+
+// Country API
+export const countryAPI = {
+  getAll: (params) => api.get('/country', { params }),
+  getById: (id) => api.get(`/country/${id}`),
+  create: (data) => api.post('/country', data),
+  update: (id, data) => api.put(`/country/${id}`, data),
+  delete: (id) => api.delete(`/country/${id}`)
+}
+
+// Region API
+export const regionAPI = {
+  getAll: (params) => api.get('/region', { params }),
+  getById: (id) => api.get(`/region/${id}`),
+  create: (data) => api.post('/region', data),
+  update: (id, data) => api.put(`/region/${id}`, data),
+  delete: (id) => api.delete(`/region/${id}`)
+}
+
+// City API
+export const cityAPI = {
+  getAll: (params) => api.get('/city', { params }),
+  getById: (id) => api.get(`/city/${id}`),
+  create: (data) => api.post('/city', data),
+  update: (id, data) => api.put(`/city/${id}`, data),
+  delete: (id) => api.delete(`/city/${id}`)
+}
+
 // Contact API
 export const contactAPI = {
   sendMessage: (data) => api.post('/message/contact', data)

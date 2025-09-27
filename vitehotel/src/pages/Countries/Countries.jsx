@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
+import { useCookies } from 'react-cookie'
 import {
   Box,
   Card,
@@ -20,16 +20,17 @@ import {
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Search, Plus, Edit, Trash2, MapPin } from 'lucide-react'
-import { fetchCountries, deleteCountry } from '../../store/slices/locationSlice'
+import { countryAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const Countries = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const [cookies] = useCookies(['user'])
+  const user = cookies.user
   
-  const { countries, loading } = useSelector(state => state.locations)
-  const { user } = useSelector(state => state.auth)
+  const [countries, setCountries] = useState([])
+  const [loading, setLoading] = useState(false)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -64,16 +65,32 @@ const Countries = () => {
   ]
 
   useEffect(() => {
-    dispatch(fetchCountries({ search: searchTerm }))
+    fetchCountries()
   }, [dispatch, searchTerm])
+
+  const fetchCountries = async () => {
+    setLoading(true)
+    try {
+      const response = await countryAPI.getAll({ search: searchTerm })
+      setCountries(response.data.countries || [])
+    } catch (error) {
+      console.error('Error fetching countries:', error)
+      toast.error('Failed to load countries')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (selectedCountry) {
-      const result = await dispatch(deleteCountry(selectedCountry._id))
-      if (result.type === 'locations/deleteCountry/fulfilled') {
+      try {
+        await countryAPI.delete(selectedCountry._id)
         toast.success(t('countries.country_deleted'))
         setDeleteDialogOpen(false)
         setSelectedCountry(null)
+        fetchCountries()
+      } catch (error) {
+        toast.error('Failed to delete country')
       }
     }
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
+import { useCookies } from 'react-cookie'
 import {
   Box,
   Card,
@@ -24,16 +24,18 @@ import {
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Search, Plus, Edit, Trash2, MapPin } from 'lucide-react'
-import { fetchRegions, deleteRegion } from '../../store/slices/locationSlice'
+import { regionAPI, countryAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const Regions = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const [cookies] = useCookies(['user'])
+  const user = cookies.user
   
-  const { regions, loading } = useSelector(state => state.locations)
-  const { user } = useSelector(state => state.auth)
+  const [regions, setRegions] = useState([])
+  const [countries, setCountries] = useState([])
+  const [loading, setLoading] = useState(false)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCountry, setFilterCountry] = useState('')
@@ -62,27 +64,49 @@ const Regions = () => {
     },
   ]
 
-  const mockCountries = [
-    { _id: '1', name: { en: 'United States', fr: 'États-Unis' } },
-    { _id: '2', name: { en: 'France', fr: 'France' } },
-  ]
 
   useEffect(() => {
-    dispatch(fetchRegions({ search: searchTerm, country: filterCountry }))
+    fetchCountries()
+    fetchRegions()
   }, [dispatch, searchTerm, filterCountry])
+
+  const fetchCountries = async () => {
+    try {
+      const response = await countryAPI.getAll()
+      setCountries(response.data.countries || [])
+    } catch (error) {
+      console.error('Error fetching countries:', error)
+    }
+  }
+
+  const fetchRegions = async () => {
+    setLoading(true)
+    try {
+      const response = await regionAPI.getAll({ search: searchTerm, country: filterCountry })
+      setRegions(response.data.regions || [])
+    } catch (error) {
+      console.error('Error fetching regions:', error)
+      toast.error('Failed to load regions')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (selectedRegion) {
-      const result = await dispatch(deleteRegion(selectedRegion._id))
-      if (result.type === 'locations/deleteRegion/fulfilled') {
+      try {
+        await regionAPI.delete(selectedRegion._id)
         toast.success(t('regions.region_deleted'))
         setDeleteDialogOpen(false)
         setSelectedRegion(null)
+        fetchRegions()
+      } catch (error) {
+        toast.error('Failed to delete region')
       }
     }
   }
 
-  const displayRegions = regions.length > 0 ? regions : mockRegions
+  const displayRegions = regions
 
   const columns = [
     {
@@ -184,7 +208,7 @@ const Regions = () => {
                   label="Country"
                 >
                   <MenuItem value="">{t('common.all')} Countries</MenuItem>
-                  {mockCountries.map((country) => (
+                  {countries.map((country) => (
                     <MenuItem key={country._id} value={country._id}>
                       {country.name.en}
                     </MenuItem>

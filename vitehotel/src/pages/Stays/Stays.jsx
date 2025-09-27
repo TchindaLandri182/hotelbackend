@@ -26,6 +26,7 @@ import {
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { Search, Plus, Edit, Trash2, Calendar, CheckIn, CheckOut } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { fetchStays, deleteStay } from '../../store/slices/staySlice'
 import { toast } from 'react-toastify'
 
@@ -105,6 +106,62 @@ const Stays = () => {
     }
   }
 
+  const handleGeneratePoliceReport = async (stay) => {
+    try {
+      // Generate police report content
+      const reportContent = generatePoliceReport(stay)
+      
+      // Create blob and download
+      const blob = new Blob([reportContent], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `fiche-police-${stay._id.slice(-6).toUpperCase()}.txt`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success('Police report generated successfully')
+    } catch (error) {
+      console.error('Error generating police report:', error)
+      toast.error('Failed to generate police report')
+    }
+  }
+
+  const generatePoliceReport = (stay) => {
+    return `
+FICHE DE POLICE / POLICE REPORT
+
+Informations de l'établissement / Hotel Information:
+Nom de l'hôtel / Hotel Name: ${stay.room.hotel?.name || 'N/A'}
+Adresse / Address: ${stay.room.hotel?.address || 'N/A'}
+
+Informations du client / Guest Information:
+Nom / Last Name: ${stay.client.lastName}
+Prénom / First Name: ${stay.client.firstName}
+Date de naissance / Date of Birth: ${stay.client.dateOfBirth ? new Date(stay.client.dateOfBirth).toLocaleDateString() : 'N/A'}
+Lieu de naissance / Place of Birth: ${stay.client.placeOfBirth || 'N/A'}
+Nationalité / Nationality: ${stay.client.nationality || 'N/A'}
+Profession: ${stay.client.profession || 'N/A'}
+Adresse de résidence / Residence Address: ${stay.client.adresse || 'N/A'}
+Numéro de pièce d'identité / ID Number: ${stay.client.nIDC || 'N/A'}
+Date de délivrance / Issue Date: ${stay.client.dateOfDelivrance ? new Date(stay.client.dateOfDelivrance).toLocaleDateString() : 'N/A'}
+Lieu de délivrance / Issue Place: ${stay.client.placeOfDelivrance || 'N/A'}
+
+Informations du séjour / Stay Information:
+Numéro de chambre / Room Number: ${stay.room.roomNumber}
+Date d'arrivée / Check-in Date: ${new Date(stay.startDate).toLocaleDateString()}
+Date de départ / Check-out Date: ${new Date(stay.endDate).toLocaleDateString()}
+Date d'arrivée réelle / Actual Check-in: ${stay.actualCheckIn ? new Date(stay.actualCheckIn).toLocaleDateString() : 'N/A'}
+Date de départ réelle / Actual Check-out: ${stay.actualCheckOut ? new Date(stay.actualCheckOut).toLocaleDateString() : 'N/A'}
+
+Statut / Status: ${stay.status}
+Notes: ${stay.notes || 'Aucune / None'}
+
+Date de génération / Generated on: ${new Date().toLocaleDateString()}
+    `
+  }
   const displayStays = stays.length > 0 ? stays : mockStays
 
   const columns = [
@@ -169,6 +226,13 @@ const Stays = () => {
               <Edit size={16} />
             </IconButton>
           )}
+          <IconButton
+            size="small"
+            onClick={() => handleGeneratePoliceReport(params.row)}
+            sx={{ color: 'info.main' }}
+          >
+            <FileText size={16} />
+          </IconButton>
           {hasPermission(9004) && (
             <IconButton
               size="small"

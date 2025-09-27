@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useCookies } from 'react-cookie'
 import {
   Box,
   Grid,
@@ -40,6 +41,8 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js'
+import { dashboardAPI } from '../../services/api'
+import { toast } from 'react-toastify'
 
 ChartJS.register(
   CategoryScale,
@@ -54,14 +57,39 @@ ChartJS.register(
 
 const Dashboard = () => {
   const { t } = useTranslation()
-  const { user } = useSelector(state => state.auth)
-  const { theme } = useSelector(state => state.ui)
+  const [cookies] = useCookies(['user'])
+  const user = cookies.user
+  
+  const [stats, setStats] = useState(null)
+  const [activities, setActivities] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Mock data - replace with real data from Redux store
-  const stats = [
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const [statsResponse, activitiesResponse] = await Promise.all([
+        dashboardAPI.getStats(),
+        dashboardAPI.getRecentActivities({ limit: 10 })
+      ])
+      
+      setStats(statsResponse.data.stats)
+      setActivities(activitiesResponse.data.activities)
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+      toast.error('Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Mock data structure for when API data is not available
+  const mockStats = [
     {
       title: t('dashboard.total_hotels'),
-      value: '12',
+      value: stats?.totalHotels?.toString() || '0',
       change: '+2.1%',
       changeType: 'increase',
       icon: Hotel,
@@ -70,7 +98,7 @@ const Dashboard = () => {
     },
     {
       title: t('dashboard.total_rooms'),
-      value: '248',
+      value: stats?.totalRooms?.toString() || '0',
       change: '+5.4%',
       changeType: 'increase',
       icon: Key,
@@ -79,7 +107,7 @@ const Dashboard = () => {
     },
     {
       title: t('dashboard.total_clients'),
-      value: '1,429',
+      value: stats?.totalClients?.toString() || '0',
       change: '+12.3%',
       changeType: 'increase',
       icon: Users,
@@ -88,7 +116,7 @@ const Dashboard = () => {
     },
     {
       title: t('dashboard.active_stays'),
-      value: '89',
+      value: stats?.activeStays?.toString() || '0',
       change: '-2.1%',
       changeType: 'decrease',
       icon: Calendar,
@@ -97,7 +125,7 @@ const Dashboard = () => {
     },
     {
       title: t('dashboard.monthly_revenue'),
-      value: '$45,231',
+      value: `$${stats?.monthlyRevenue?.toLocaleString() || '0'}`,
       change: '+8.7%',
       changeType: 'increase',
       icon: DollarSign,
@@ -106,7 +134,7 @@ const Dashboard = () => {
     },
     {
       title: t('dashboard.occupancy_rate'),
-      value: '78.2%',
+      value: `${stats?.occupancyRate || 0}%`,
       change: '+3.2%',
       changeType: 'increase',
       icon: TrendingUp,
@@ -115,40 +143,7 @@ const Dashboard = () => {
     },
   ]
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'booking',
-      message: 'New booking created for Room 101',
-      time: '2 minutes ago',
-      user: 'John Smith',
-      avatar: null,
-    },
-    {
-      id: 2,
-      type: 'payment',
-      message: 'Payment received for Invoice #INV-001',
-      time: '15 minutes ago',
-      user: 'Sarah Johnson',
-      avatar: null,
-    },
-    {
-      id: 3,
-      type: 'checkin',
-      message: 'Guest checked in to Room 205',
-      time: '1 hour ago',
-      user: 'Mike Wilson',
-      avatar: null,
-    },
-    {
-      id: 4,
-      type: 'checkout',
-      message: 'Guest checked out from Room 103',
-      time: '2 hours ago',
-      user: 'Emily Davis',
-      avatar: null,
-    },
-  ]
+  const displayStats = mockStats
 
   const quickActions = [
     { name: 'Create Booking', path: '/stays/create', color: '#3b82f6' },
@@ -159,11 +154,11 @@ const Dashboard = () => {
 
   // Chart data
   const revenueData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: stats?.revenueTrend?.map(item => item.month) || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
         label: 'Revenue',
-        data: [12000, 19000, 15000, 25000, 22000, 30000],
+        data: stats?.revenueTrend?.map(item => item.revenue) || [12000, 19000, 15000, 25000, 22000, 30000],
         borderColor: '#3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         tension: 0.4,
@@ -198,10 +193,18 @@ const Dashboard = () => {
       },
       y: {
         grid: {
-          color: theme === 'dark' ? '#374151' : '#f3f4f6',
+          color: '#f3f4f6',
         },
       },
     },
+  }
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+        <CircularProgress />
+      </Box>
+    )
   }
 
   return (
@@ -227,7 +230,7 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {stats.map((stat, index) => (
+        {displayStats.map((stat, index) => (
           <Grid item xs={12} sm={6} lg={4} key={stat.title}>
             <Card 
               sx={{ 
@@ -350,7 +353,7 @@ const Dashboard = () => {
                 {t('dashboard.recent_activities')}
               </Typography>
               <List>
-                {recentActivities.map((activity, index) => (
+                {activities.map((activity, index) => (
                   <ListItem key={activity.id} divider={index < recentActivities.length - 1}>
                     <ListItemAvatar>
                       <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>

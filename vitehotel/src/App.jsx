@@ -54,6 +54,7 @@ import Permissions from './pages/Permissions/Permissions'
 import Settings from './pages/Settings/Settings'
 import UserGuide from './pages/UserGuide/UserGuide'
 import Reports from './pages/Reports/Reports'
+import Calendar from './pages/Calendar/Calendar'
 
 function AppContent() {
   const [isLoading, setIsLoading] = useState(true)
@@ -184,6 +185,9 @@ function AppContent() {
         
         {/* Reports */}
         <Route path="reports" element={<Reports />} />
+        
+        {/* Calendar */}
+        <Route path="calendar" element={<Calendar />} />
         
         {/* Settings */}
         <Route path="settings" element={<Settings />} />

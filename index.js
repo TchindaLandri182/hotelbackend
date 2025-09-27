@@ -23,6 +23,10 @@ const orderItemRoute = require('./routes/orderItemRoute');
 const pricePeriodRoute = require('./routes/pricePeriodRoute');
 const zoneRoute = require('./routes/zoneRoute');
 const logRoute = require('./routes/logRoute');
+const dashboardRoute = require('./routes/dashboardRoute');
+const countryRoute = require('./routes/countryRoute');
+const regionRoute = require('./routes/regionRoute');
+const cityRoute = require('./routes/cityRoute');
 
 // Middleware
 app.use(bodyParser.json());
@@ -42,6 +46,10 @@ app.use('/api/order-item', orderItemRoute);
 app.use('/api/price-period', pricePeriodRoute);
 app.use('/api/zone', zoneRoute);
 app.use('/api/log', logRoute);
+app.use('/api/dashboard', dashboardRoute);
+app.use('/api/country', countryRoute);
+app.use('/api/region', regionRoute);
+app.use('/api/city', cityRoute);
 
 // Database connection and server start
 mongoose.connect(process.env.MONGOOSE_CONNECTION_URL)

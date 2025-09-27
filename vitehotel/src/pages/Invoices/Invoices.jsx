@@ -113,6 +113,52 @@ const Invoices = () => {
     }
   }
 
+  const handleGeneratePDF = async (invoice) => {
+    try {
+      // Create PDF content
+      const pdfContent = generateInvoicePDF(invoice)
+      
+      // Create blob and download
+      const blob = new Blob([pdfContent], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `invoice-${invoice._id.slice(-6).toUpperCase()}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+      toast.success('Invoice PDF generated successfully')
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      toast.error('Failed to generate PDF')
+    }
+  }
+
+  const generateInvoicePDF = (invoice) => {
+    // Simple PDF content generation (in a real app, use a proper PDF library like jsPDF)
+    return `
+INVOICE
+
+Invoice Number: INV-${invoice._id.slice(-6).toUpperCase()}
+Issue Date: ${new Date(invoice.issueDate).toLocaleDateString()}
+
+Guest: ${invoice.stay.client.firstName} ${invoice.stay.client.lastName}
+Room: ${invoice.stay.room.roomNumber}
+Stay Period: ${new Date(invoice.stay.startDate).toLocaleDateString()} - ${new Date(invoice.stay.endDate).toLocaleDateString()}
+
+Total Amount: $${invoice.totalAmount}
+Payment Status: ${invoice.paymentStatus}
+
+Payments:
+${invoice.payments.map(payment => 
+  `- $${payment.amountPaid} paid on ${new Date(payment.datePaid).toLocaleDateString()} via ${payment.method}`
+).join('\n')}
+
+Thank you for your business!
+    `
+  }
   const displayInvoices = invoices.length > 0 ? invoices : mockInvoices
 
   const columns = [
@@ -176,6 +222,13 @@ const Invoices = () => {
               <Edit size={16} />
             </IconButton>
           )}
+          <IconButton
+            size="small"
+            onClick={() => handleGeneratePDF(params.row)}
+            sx={{ color: 'success.main' }}
+          >
+            <Download size={16} />
+          </IconButton>
           {hasPermission(5004) && (
             <IconButton
               size="small"
@@ -370,6 +423,13 @@ const Invoices = () => {
                           <Edit size={16} />
                         </IconButton>
                       )}
+                      <IconButton
+                        size="small"
+                        onClick={() => handleGeneratePDF(invoice)}
+                        sx={{ color: 'success.main' }}
+                      >
+                        <Download size={16} />
+                      </IconButton>
                       {hasPermission(5004) && (
                         <IconButton
                           size="small"

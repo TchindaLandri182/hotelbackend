@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Formik, Form, Field } from 'formik'
@@ -15,6 +16,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { ArrowLeft } from 'lucide-react'
+import { countryAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const CountryForm = () => {
@@ -24,7 +26,23 @@ const CountryForm = () => {
   const isEdit = !!id
 
   const [loading, setLoading] = useState(false)
+  const [country, setCountry] = useState(null)
 
+  useEffect(() => {
+    if (isEdit) {
+      fetchCountry()
+    }
+  }, [id, isEdit])
+
+  const fetchCountry = async () => {
+    try {
+      const response = await countryAPI.getById(id)
+      setCountry(response.data.country)
+    } catch (error) {
+      console.error('Error fetching country:', error)
+      toast.error('Failed to load country')
+    }
+  }
   const validationSchema = Yup.object({
     nameEn: Yup.string()
       .required(t('errors.required_field')),
@@ -36,9 +54,9 @@ const CountryForm = () => {
   })
 
   const initialValues = {
-    nameEn: '',
-    nameFr: '',
-    code: '',
+    nameEn: country?.name?.en || '',
+    nameFr: country?.name?.fr || '',
+    code: country?.code || '',
   }
 
   const handleSubmit = async (values) => {
@@ -53,8 +71,11 @@ const CountryForm = () => {
         code: values.code.toUpperCase(),
       }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (isEdit) {
+        await countryAPI.update(id, countryData)
+      } else {
+        await countryAPI.create(countryData)
+      }
       
       toast.success(isEdit ? t('countries.country_updated') : t('countries.country_created'))
       navigate('/countries')
@@ -88,6 +109,7 @@ const CountryForm = () => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
+            enableReinitialize
             enableReinitialize
           >
             {({ errors, touched }) => (

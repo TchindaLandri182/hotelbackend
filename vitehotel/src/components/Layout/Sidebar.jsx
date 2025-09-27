@@ -34,6 +34,7 @@ import {
   ChevronRight,
   BarChart3,
   Shield,
+  CalendarDays,
 } from 'lucide-react'
 import { hasPermission } from '../../utils/auth'
 
@@ -149,6 +150,12 @@ const Sidebar = () => {
       path: '/dashboard/reports',
       icon: BarChart3,
       permission: 1702
+    },
+    {
+      name: 'Calendar',
+      path: '/dashboard/calendar',
+      icon: CalendarDays,
+      permission: 9002
     },
     {
       name: t('navigation.settings'),
