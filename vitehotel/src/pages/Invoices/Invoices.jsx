@@ -25,7 +25,7 @@ import {
   MenuItem,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { Search, Plus, Edit, Trash2, FileText, DollarSign } from 'lucide-react'
+import { Search, Plus, CreditCard as Edit, Trash2, FileText, DollarSign } from 'lucide-react'
 import { fetchInvoices, deleteInvoice } from '../../store/slices/invoiceSlice'
 import { toast } from 'react-toastify'
 
@@ -222,13 +222,6 @@ Thank you for your business!
               <Edit size={16} />
             </IconButton>
           )}
-          <IconButton
-            size="small"
-            onClick={() => handleGeneratePDF(params.row)}
-            sx={{ color: 'success.main' }}
-          >
-            <Download size={16} />
-          </IconButton>
           {hasPermission(5004) && (
             <IconButton
               size="small"
@@ -423,13 +416,6 @@ Thank you for your business!
                           <Edit size={16} />
                         </IconButton>
                       )}
-                      <IconButton
-                        size="small"
-                        onClick={() => handleGeneratePDF(invoice)}
-                        sx={{ color: 'success.main' }}
-                      >
-                        <Download size={16} />
-                      </IconButton>
                       {hasPermission(5004) && (
                         <IconButton
                           size="small"

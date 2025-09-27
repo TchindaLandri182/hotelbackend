@@ -19,7 +19,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { Search, Plus, Edit, Trash2, MapPin } from 'lucide-react'
+import { Search, Plus, CreditCard as Edit, Trash2, MapPin } from 'lucide-react'
 import { countryAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 

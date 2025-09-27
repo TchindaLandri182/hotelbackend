@@ -25,7 +25,7 @@ import {
   MenuItem,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { Search, Plus, Edit, Trash2, Calendar, CheckIn, CheckOut } from 'lucide-react'
+import { Search, Plus, CreditCard as Edit, Trash2, Calendar, Check as CheckIn, Check as CheckOut } from 'lucide-react'
 import { FileText } from 'lucide-react'
 import { fetchStays, deleteStay } from '../../store/slices/staySlice'
 import { toast } from 'react-toastify'

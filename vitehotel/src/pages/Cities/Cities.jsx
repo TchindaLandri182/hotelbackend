@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
+import { useCookies } from 'react-cookie'
 import {
   Box,
   Card,
@@ -23,17 +23,19 @@ import {
   MenuItem,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import { Search, Plus, Edit, Trash2, MapPin } from 'lucide-react'
-import { fetchCities, deleteCity } from '../../store/slices/locationSlice'
+import { Search, Plus, CreditCard as Edit, Trash2, MapPin } from 'lucide-react'
+import { cityAPI, regionAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const Cities = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const [cookies] = useCookies(['user'])
+  const user = cookies.user
   
-  const { cities, loading } = useSelector(state => state.locations)
-  const { user } = useSelector(state => state.auth)
+  const [cities, setCities] = useState([])
+  const [regions, setRegions] = useState([])
+  const [loading, setLoading] = useState(false)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRegion, setFilterRegion] = useState('')
@@ -62,27 +64,49 @@ const Cities = () => {
     },
   ]
 
-  const mockRegions = [
-    { _id: '1', name: { en: 'New York State', fr: 'État de New York' } },
-    { _id: '2', name: { en: 'Île-de-France', fr: 'Île-de-France' } },
-  ]
 
   useEffect(() => {
-    dispatch(fetchCities({ search: searchTerm, region: filterRegion }))
+    fetchRegions()
+    fetchCities()
   }, [dispatch, searchTerm, filterRegion])
+
+  const fetchRegions = async () => {
+    try {
+      const response = await regionAPI.getAll()
+      setRegions(response.data.regions || [])
+    } catch (error) {
+      console.error('Error fetching regions:', error)
+    }
+  }
+
+  const fetchCities = async () => {
+    setLoading(true)
+    try {
+      const response = await cityAPI.getAll({ search: searchTerm, region: filterRegion })
+      setCities(response.data.cities || [])
+    } catch (error) {
+      console.error('Error fetching cities:', error)
+      toast.error('Failed to load cities')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDelete = async () => {
     if (selectedCity) {
-      const result = await dispatch(deleteCity(selectedCity._id))
-      if (result.type === 'locations/deleteCity/fulfilled') {
+      try {
+        await cityAPI.delete(selectedCity._id)
         toast.success(t('cities.city_deleted'))
         setDeleteDialogOpen(false)
         setSelectedCity(null)
+        fetchCities()
+      } catch (error) {
+        toast.error('Failed to delete city')
       }
     }
   }
 
-  const displayCities = cities.length > 0 ? cities : mockCities
+  const displayCities = cities
 
   const columns = [
     {
@@ -184,7 +208,7 @@ const Cities = () => {
                   label="Region"
                 >
                   <MenuItem value="">{t('common.all')} Regions</MenuItem>
-                  {mockRegions.map((region) => (
+                  {regions.map((region) => (
                     <MenuItem key={region._id} value={region._id}>
                       {region.name.en}
                     </MenuItem>

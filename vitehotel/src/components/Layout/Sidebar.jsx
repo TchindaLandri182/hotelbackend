@@ -16,26 +16,7 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material'
-import {
-  Home,
-  Hotel,
-  Key,
-  Tag,
-  Users,
-  Calendar,
-  FileText,
-  UtensilsCrossed,
-  ShoppingCart,
-  DollarSign,
-  MapPin,
-  Settings,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
-  BarChart3,
-  Shield,
-  CalendarDays,
-} from 'lucide-react'
+import { Hop as Home, Hotel, Key, Tag, Users, Calendar, FileText, UtensilsCrossed, ShoppingCart, DollarSign, MapPin, Settings, Circle as HelpCircle, ChevronLeft, ChevronRight, ChartBar as BarChart3, Shield, CalendarDays } from 'lucide-react'
 import { hasPermission } from '../../utils/auth'
 
 const Sidebar = () => {

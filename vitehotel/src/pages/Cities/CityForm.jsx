@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Formik, Form, Field } from 'formik'
@@ -16,6 +17,7 @@ import {
   Autocomplete,
 } from '@mui/material'
 import { ArrowLeft } from 'lucide-react'
+import { cityAPI, regionAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const CityForm = () => {
@@ -25,13 +27,34 @@ const CityForm = () => {
   const isEdit = !!id
 
   const [loading, setLoading] = useState(false)
+  const [city, setCity] = useState(null)
+  const [regions, setRegions] = useState([])
 
-  // Mock regions data
-  const regions = [
-    { _id: '1', name: { en: 'New York State', fr: 'État de New York' } },
-    { _id: '2', name: { en: 'Île-de-France', fr: 'Île-de-France' } },
-    { _id: '3', name: { en: 'England', fr: 'Angleterre' } },
-  ]
+  useEffect(() => {
+    fetchRegions()
+    if (isEdit) {
+      fetchCity()
+    }
+  }, [id, isEdit])
+
+  const fetchRegions = async () => {
+    try {
+      const response = await regionAPI.getAll()
+      setRegions(response.data.regions || [])
+    } catch (error) {
+      console.error('Error fetching regions:', error)
+    }
+  }
+
+  const fetchCity = async () => {
+    try {
+      const response = await cityAPI.getById(id)
+      setCity(response.data.city)
+    } catch (error) {
+      console.error('Error fetching city:', error)
+      toast.error('Failed to load city')
+    }
+  }
 
   const validationSchema = Yup.object({
     nameEn: Yup.string()
@@ -43,9 +66,9 @@ const CityForm = () => {
   })
 
   const initialValues = {
-    nameEn: '',
-    nameFr: '',
-    region: '',
+    nameEn: city?.name?.en || '',
+    nameFr: city?.name?.fr || '',
+    region: city?.region?._id || '',
   }
 
   const handleSubmit = async (values) => {
@@ -60,8 +83,11 @@ const CityForm = () => {
         region: values.region,
       }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (isEdit) {
+        await cityAPI.update(id, cityData)
+      } else {
+        await cityAPI.create(cityData)
+      }
       
       toast.success(isEdit ? t('cities.city_updated') : t('cities.city_created'))
       navigate('/cities')
@@ -95,6 +121,7 @@ const CityForm = () => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
+            enableReinitialize
             enableReinitialize
           >
             {({ errors, touched, values, setFieldValue }) => (

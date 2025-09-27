@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Formik, Form, Field } from 'formik'
@@ -16,6 +17,7 @@ import {
   Autocomplete,
 } from '@mui/material'
 import { ArrowLeft } from 'lucide-react'
+import { regionAPI, countryAPI } from '../../services/api'
 import { toast } from 'react-toastify'
 
 const RegionForm = () => {
@@ -25,13 +27,34 @@ const RegionForm = () => {
   const isEdit = !!id
 
   const [loading, setLoading] = useState(false)
+  const [region, setRegion] = useState(null)
+  const [countries, setCountries] = useState([])
 
-  // Mock countries data
-  const countries = [
-    { _id: '1', name: { en: 'United States', fr: 'États-Unis' } },
-    { _id: '2', name: { en: 'France', fr: 'France' } },
-    { _id: '3', name: { en: 'United Kingdom', fr: 'Royaume-Uni' } },
-  ]
+  useEffect(() => {
+    fetchCountries()
+    if (isEdit) {
+      fetchRegion()
+    }
+  }, [id, isEdit])
+
+  const fetchCountries = async () => {
+    try {
+      const response = await countryAPI.getAll()
+      setCountries(response.data.countries || [])
+    } catch (error) {
+      console.error('Error fetching countries:', error)
+    }
+  }
+
+  const fetchRegion = async () => {
+    try {
+      const response = await regionAPI.getById(id)
+      setRegion(response.data.region)
+    } catch (error) {
+      console.error('Error fetching region:', error)
+      toast.error('Failed to load region')
+    }
+  }
 
   const validationSchema = Yup.object({
     nameEn: Yup.string()
@@ -43,9 +66,9 @@ const RegionForm = () => {
   })
 
   const initialValues = {
-    nameEn: '',
-    nameFr: '',
-    country: '',
+    nameEn: region?.name?.en || '',
+    nameFr: region?.name?.fr || '',
+    country: region?.country?._id || '',
   }
 
   const handleSubmit = async (values) => {
@@ -60,8 +83,11 @@ const RegionForm = () => {
         country: values.country,
       }
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (isEdit) {
+        await regionAPI.update(id, regionData)
+      } else {
+        await regionAPI.create(regionData)
+      }
       
       toast.success(isEdit ? t('regions.region_updated') : t('regions.region_created'))
       navigate('/regions')
@@ -95,6 +121,7 @@ const RegionForm = () => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
+            enableReinitialize
             enableReinitialize
           >
             {({ errors, touched, values, setFieldValue }) => (

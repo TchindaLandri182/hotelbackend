@@ -72,6 +72,55 @@ I have completed the Hotel Management System frontend by implementing all missin
 - **User Guide** - Interactive help system
 - **Reports** - Analytics and reporting dashboard
 
+## Backend Enhancements
+
+### 1. New Routes and Controllers
+- **Dashboard Route** - `/api/dashboard` with endpoints:
+  - `/stats` - Dashboard statistics
+  - `/recent-activities` - Recent system activities
+  - `/calendar-data` - Calendar view data
+  
+- **Location Management Routes**:
+  - `/api/country` - Country CRUD operations
+  - `/api/region` - Region CRUD operations  
+  - `/api/city` - City CRUD operations
+
+### 2. Dashboard Controller Features
+- **Dynamic Statistics**: Real-time calculation of hotel metrics
+- **Role-based Data**: Filtered data based on user permissions
+- **Revenue Analytics**: Monthly revenue tracking and trends
+- **Activity Logging**: Recent user activities and system events
+- **Calendar Data**: Room occupancy and revenue by date
+
+## New Frontend Features
+
+### 1. Dynamic Calendar Page
+- **Weekly Room View**: Visual calendar showing room occupancy
+- **Color-coded Status**: Different colors for available, occupied, reserved, pending
+- **Daily Revenue**: Bottom row showing daily revenue totals
+- **Interactive Navigation**: Week navigation with today button
+- **Hotel Filtering**: Admin users can filter by specific hotels
+- **Responsive Design**: Works on all screen sizes
+
+### 2. PDF Generation Features
+- **Invoice PDF**: Generate downloadable invoice PDFs
+  - Includes stay details, guest information, payments
+  - Integrates order items if present
+  - Professional formatting
+  
+- **Police Report (Fiche de Police)**: Generate guest registration reports
+  - Bilingual format (French/English)
+  - Complete guest information
+  - Stay details and dates
+  - Downloadable text format
+
+### 3. Enhanced Dashboard
+- **Real-time Statistics**: Live data from backend API
+- **Revenue Trends**: 6-month revenue chart
+- **Recent Activities**: Live activity feed
+- **Quick Actions**: Fast access to common operations
+- **Role-based Content**: Customized based on user permissions
+
 ## Key Features Implemented
 
 ### 1. Cookie-Based Authentication System
