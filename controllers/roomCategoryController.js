@@ -97,6 +97,23 @@ exports.getCategoryRoomById = async (req, res) => {
   }
 };
 
+exports.getAllCategoryRooms = async (req, res) => {
+  try{
+    const { hotel } = req.query;
+    const query = {deleted: false}
+    if(hotel) query.hotel = hotel
+    console.log(query)
+    const categories = await CategoryRoom.find(query)
+    res.json({
+       messageCode: 'MSG_0003',
+       categories
+    })
+  }catch(error){
+    console.error('Get Categories Error:', error);
+    res.status(500).json({ messageCode: 'MSG_0001', message: 'Server error' });
+  }
+}
+
 exports.getCategoryRooms = async (req, res) => {
   try {
     const { 

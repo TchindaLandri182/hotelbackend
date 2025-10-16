@@ -15,7 +15,7 @@ const verifyJWT = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || 'Access_token_secret');
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || 'access_token_secret');
         const user = await User.findById(decoded.userId).select('-password');
 
         if(!user || user?.deleted) return res.status(403).json({messageCode: 'MSG_0053', message: 'User not found' });

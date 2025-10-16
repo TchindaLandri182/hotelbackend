@@ -12,10 +12,11 @@ const ClientSchema = new Schema({
   profession: { type: String, required: true },
   adresse: { type: String, required: true },
   tel: { type: String },
-  nIDC: { type: String, required: true, unique: true },
+  nIDC: { type: String, required: true },
   dateOfDelivrance: { type: Date, required: true },
   placeOfDelivrance: { type: String, required: true },
   deleted: { type: Boolean, default: false },
+  hotel: { type: mongoose.Schema.Types.ObjectId, ref: 'Hotel', required: true },
   createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   frontendDateTime: { type: Date }
 }, { timestamps: true });

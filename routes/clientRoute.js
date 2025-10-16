@@ -22,6 +22,11 @@ router.delete('/:id',
   clientController.deleteClient
 );
 
+router.get('/all', 
+  checkPermission(permissions.readClient),
+  clientController.getAllClients
+);
+
 router.get('/:id', 
   checkPermission(permissions.readClient),
   clientController.getClientById

@@ -398,5 +398,9 @@
   "MSG_0100": {
     "en": "Internal server error during permission validation",
     "fr": ""
+  },
+  "MSG_0101": {
+    "en": "Password don't match",
+    "fr": ""
   }
 }

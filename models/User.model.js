@@ -31,10 +31,10 @@ const UserSchema = new Schema({
     required: true 
   },
   permissions: [{ type: Number }],
-  location: {
-    type: PointSchema,
-    index: '2dsphere'
-  },
+  // location: {
+  //   type: PointSchema,
+  //   index: '2dsphere'
+  // },
   emailCode: { type: String },
   emailExpireIn: { type: Date },
   isEmailVerified: { type: Boolean, default: false },

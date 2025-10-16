@@ -239,6 +239,78 @@ exports.getStayById = async (req, res) => {
   }
 };
 
+// exports.getStays = async (req, res) => {
+//   try {
+//     const { 
+//       page = 1, 
+//       limit = 20,
+//       client,
+//       room,
+//       status,
+//       startDate,
+//       endDate,
+//       sort = '-startDate',
+//       order = 'desc'
+//     } = req.query;
+    
+//     const skip = (page - 1) * limit;
+//     const query = { deleted: false };
+    
+//     // Client filter
+//     if (client) query.client = client;
+    
+//     // Room filter
+//     if (room) query.room = room;
+    
+//     // Status filter
+//     if (status) query.status = status;
+    
+//     // Date range filters
+//     if (startDate || endDate) {
+//       query.$or = [
+//         { 
+//           startDate: { $lte: endDate ? new Date(endDate) : new Date() },
+//           endDate: { $gte: startDate ? new Date(startDate) : new Date(0) }
+//         },
+//         { 
+//           startDate: { 
+//             $gte: startDate ? new Date(startDate) : new Date(0),
+//             $lte: endDate ? new Date(endDate) : new Date() 
+//           } 
+//         }
+//       ];
+//     }
+    
+//     const [stays, total] = await Promise.all([
+//       Stay.find(query)
+//         .sort({ [sort]: order === 'desc' ? -1 : 1 })
+//         .skip(Number(skip))
+//         .limit(Number(limit))
+//         .populate('client', 'firstName lastName')
+//         .populate({
+//           path: 'room',
+//           select: 'roomNumber',
+//           populate: {
+//             path: 'hotel',
+//             select: 'name'
+//           }
+//         }),
+      
+//       Stay.countDocuments(query)
+//     ]);
+    
+//     res.json({
+//       messageCode: 'MSG_0003', 
+//       total,
+//       page: Number(page),
+//       pages: Math.ceil(total / limit),
+//       stays
+//     });
+//   } catch (error) {
+//     console.error('Get Stays Error:', error);
+//     res.status(500).json({ messageCode: 'MSG_0001', message: 'Server error' });
+//   }
+// };
 exports.getStays = async (req, res) => {
   try {
     const { 
@@ -250,12 +322,13 @@ exports.getStays = async (req, res) => {
       startDate,
       endDate,
       sort = '-startDate',
-      order = 'desc'
+      order = 'desc',
+      search 
     } = req.query;
     
     const skip = (page - 1) * limit;
     const query = { deleted: false };
-    
+
     // Client filter
     if (client) query.client = client;
     
@@ -264,6 +337,18 @@ exports.getStays = async (req, res) => {
     
     // Status filter
     if (status) query.status = status;
+    
+    if (search) {
+      const matchingClients = await Client.find({
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } }
+        ]
+      }).select('_id');
+
+      const clientIds = matchingClients.map(c => c._id);
+      query.client = { $in: clientIds };
+    }
     
     // Date range filters
     if (startDate || endDate) {
@@ -282,12 +367,30 @@ exports.getStays = async (req, res) => {
     }
     
     const [stays, total] = await Promise.all([
-      Stay.find(query)
-        .sort({ [sort]: order === 'desc' ? -1 : 1 })
-        .skip(Number(skip))
-        .limit(Number(limit))
-        .populate('client', 'firstName lastName')
-        .populate('room', 'roomNumber'),
+        Stay.find(query)
+          .sort({ [sort]: order === 'desc' ? -1 : 1 })
+          .skip(Number(skip))
+          .limit(Number(limit))
+          .populate('client')
+          .populate({
+            path: 'room',
+            // select: 'roomNumber',
+            populate: [
+              {
+                path: 'hotel',
+                populate: {
+                  path: 'owners'
+                }
+              },
+              {
+                path: 'category',
+              }
+            ],
+          // populate: {
+          //   path: 'category',
+          //   select: 'basePrice'
+          // }
+        }),
       
       Stay.countDocuments(query)
     ]);

@@ -4,11 +4,11 @@ const roleHierarchy = {
     regionAgent: 2,
     cityAgent: 3,
     zoneAgent: 4,
-    hotelDirector: 5,
-    hotelManager: 6,
-    restaurantManager: 6,
-    beveragesManager: 6,
-    owner: 7
+    owner: 5,
+    hotelDirector: 6,
+    hotelManager: 7,
+    restaurantManager: 7,
+    beveragesManager: 7,
   };
   
   // Check if manager can manage target user

@@ -26,6 +26,13 @@ router.delete(
 );
 
 router.get(
+  '/all',
+  checkPermission(permissions.readCategoryRoom),
+  categoryController.getAllCategoryRooms
+);
+
+
+router.get(
   '/:id',
   checkPermission(permissions.readCategoryRoom),
   categoryController.getCategoryRoomById

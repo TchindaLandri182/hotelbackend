@@ -194,7 +194,25 @@ exports.getInvoices = async (req, res) => {
         .sort({ [sort]: order === 'desc' ? -1 : 1 })
         .skip(Number(skip))
         .limit(Number(limit))
-        .populate('stay', 'startDate endDate room')
+        .populate({
+            path: 'stay', 
+            // select: 'startDate endDate room',
+            populate: [{
+              path: 'client',
+            },{
+              path: 'room',
+              populate: [{
+                path: 'hotel',
+                populate: {
+                  path: 'owners'
+                }
+              },{
+                path: 'category'
+              }]
+            }
+          ],
+          }
+        )
         .populate('createdBy', 'firstName lastName'),
       
       Invoice.countDocuments(query)

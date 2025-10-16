@@ -9,18 +9,18 @@ exports.createClient = [
     try {
       const {
         firstName, lastName, dateOfBirth, placeOfBirth, nationality,
-        country, cityOfResidence, profession, adresse, tel, nIDC,
+        country, cityOfResidence, profession, adresse, tel, nIDC, hotel,
         dateOfDelivrance, placeOfDelivrance
       } = req.body;
 
       const requiredFields = [firstName, lastName, dateOfBirth, placeOfBirth, nationality,
-        country, cityOfResidence, profession, adresse, tel, nIDC,
+        country, cityOfResidence, profession, adresse, tel, nIDC, hotel,
         dateOfDelivrance, placeOfDelivrance];
 
       if (requiredFields.some(f => !f)) {
         return res.status(400).json({messageCode: 'MSG_0083', message: 'All required fields must be filled' });
       }
-
+      console.log(hotel)
       const client = await Client.create({
         ...req.body,
         createdBy: req.user._id
@@ -76,6 +76,23 @@ exports.getClientById = async (req, res) => {
 };
 
 exports.getAllClients = async (req, res) => {
+  try{
+
+    const { hotel } = req.query;
+
+    if (!hotel) return res.status(400).json({messageCode: 'MSG_0086', message: 'Hotel ID is required' });
+
+    const clients = await Client.find({hotel: req.user?.hotel || hotel, deleted: false})
+
+    res.json({messageCode: 'MSG_0003', clients});
+
+  }catch(err){
+    console.error(err);
+    res.status(500).json({messageCode: 'MSG_0001', message: err.message });
+  }
+}
+
+exports.getClientsByHotel = async (req, res) => {
   try {
     const { hotel } = req.query;
 
@@ -94,6 +111,7 @@ exports.getAllClients = async (req, res) => {
       _id: { $in: Array.from(clientIds) },
       deleted: false
     });
+    // console.log(clients, stays, clientIds)
 
     res.json({messageCode: 'MSG_0003', clients});
   } catch (err) {
@@ -121,7 +139,7 @@ exports.getClients = async (req, res) => {
     const end = new Date(endDate);
 
     const match = { deleted: false };
-
+    if(req.user?.hotel || hotel) match.hotel = req.user?.hotel || hotel
     if (search) {
       match.$or = [
         { firstName: { $regex: search, $options: 'i' } },

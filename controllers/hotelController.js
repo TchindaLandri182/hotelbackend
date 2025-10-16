@@ -1,44 +1,75 @@
 const Hotel = require('../models/Hotel.model');
 const User = require('../models/User.model');
 const Zone = require('../models/Zone.model');
+const roleHierarchy = require('../constants/roleHierarchy');
 const { createLog, logAction } = require('../services/logService');
 const permissions = require('../constants/permissions.constants');
 
 exports.createHotel = [
   async (req, res) => {
     try {
-      const { name, address, logo, owners, zone } = req.body;
+      const { name, address, owners, zone } = req.body;
       const creator = req.user;
-      
-      // Validate zone
-      const zoneExists = await Zone.findById(zone);
-      if (!zoneExists || zoneExists.deleted) {
-        return res.status(404).json({ messageCode: 'MSG_0038', message: 'Zone not found' });
-      }
-      
-      // Validate owners
-      const validOwners = await User.find({ 
-        _id: { $in: owners }, 
-        role: 'owner',
-        deleted: false
-      });
-      
-      if (validOwners.length !== owners.length) {
-        return res.status(400).json({ 
-          messageCode: 'MSG_0042', message: 'One or more owners are invalid' 
+
+      //check if creator can create 
+      if (creator.role !== 'owner' && !roleHierarchy.canManage(creator.role, 'owner')) {
+        return res.status(403).json({ 
+          messageCode: 'MSG_0094', message: 'Missing permission'
         });
       }
       
+      // Validate zone
+      // if(zone){
+      //   const zoneExists = await Zone.findById(zone);
+      //   if (!zoneExists || zoneExists.deleted) {
+      //     return res.status(404).json({ messageCode: 'MSG_0038', message: 'Zone not found' });
+      //   }
+      // }
+      
+      // Validate owners
+      if(owners.length > 0){
+        const validOwners = await User.find({ 
+          _id: { $in: owners }, 
+          role: 'owner',
+          deleted: false
+        }).lean();
+        
+        if (validOwners.length !== owners.length) {
+          return res.status(400).json({ 
+            messageCode: 'MSG_0042', message: 'One or more owners are invalid' 
+          });
+        }
+      }
+      let logo = {}
+      if (req.file) {
+        // Delete old image if exists
+        // if (user.profileImage?.public_id) {
+        //   await deleteFromCloudinary(user.profileImage.public_id);
+        // }
+        logo = {
+          public_id: req.file.public_id,
+          url: req.file.secure_url
+        };
+      }
+
       const newHotel = new Hotel({
         name,
         address,
         logo,
-        owners,
-        zone,
+        owners : owners.length > 0 ? owners : [creator._id],
+        // zone,
         createdBy: creator._id
       });
       
       await newHotel.save();
+
+      //link hotel owner with hotel
+      if(owners.length > 0){
+        await User.updateMany({_id: { $in : owners } },{$set: {hotel: newHotel._id}})
+      }else{
+        creator.hotel = newHotel._id
+        await creator.save();
+      }
       
       // Store ID for logging middleware
       res.locals.newId = newHotel._id;
@@ -158,6 +189,19 @@ exports.getHotelById = async (req, res) => {
     res.status(500).json({ messageCode: 'MSG_0001', message: 'Server error' });
   }
 };
+
+exports.getAllHotels = async (req, res) => {
+  try{
+    const hotels = await Hotel.find({deleted: false});
+    res.json({ 
+      messageCode: 'MSG_0003',  
+      hotels
+    });
+  }catch (error) {
+    console.error('Get Hotel Error:', error);
+    res.status(500).json({ messageCode: 'MSG_0001', message: 'Server error' });
+  }
+}
 
 exports.getHotels = async (req, res) => {
   try {

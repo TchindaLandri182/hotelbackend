@@ -5,13 +5,17 @@ const allowedImageFormat = require('../constants/allowedImageFormat');
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: 'hotelmanagement',
+  params:(req, file) => {return {
+    folder: 'hotel',
     allowed_formats: allowedImageFormat,
-    transformation: [{ width: 500, height: 500, crop: 'limit' }],
-  },
+    public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
+    resource_type: 'auto'
+  }}
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
 
-exports.uploadUserImage = upload;
+module.exports = upload;

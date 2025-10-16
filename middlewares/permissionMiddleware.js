@@ -1,4 +1,5 @@
 const Log = require('../models/Log.model');
+const permissions = require('../constants/permissions.constants');
 
 const checkPermission = (...requiredPermissions) => {
   return async (req, res, next) => {
@@ -13,6 +14,10 @@ const checkPermission = (...requiredPermissions) => {
 
       // Admins bypass all permission checks
       if (user.role === 'admin') {
+        return next();
+      }
+      
+      if(requiredPermissions.includes(permissions.updateUser) && req.params.id === user._id.toString()){
         return next();
       }
 

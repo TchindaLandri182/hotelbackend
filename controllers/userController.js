@@ -2,7 +2,7 @@ const User = require('../models/User.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
-const { sendEmail } = require('../services/emailService');
+const { sendEmail, generateEmailToken, verifyEmailToken } = require('../services/emailService');
 const { deleteFromCloudinary } = require('../services/cloudinary');
 const { generateInviteToken, verifyInviteToken } = require('../services/inviteService');
 const roleList = require('../constants/roleLIst.constants');
@@ -41,9 +41,21 @@ const signinUser = async (req, res) => {
     
     // Step 1: Check if email is verified
     if (!user.isEmailVerified) {
+
+      const emailToken = generateEmailToken(user._id)
+      user.emailCode = Math.floor(1000 + Math.random() * 9000)
+      user.emailExpireIn = new Date(Date.now() + 60 * 60 * 1000)
+      await user.save()
+
+      // TODO: Send verification email with emailCode
+      // sendVerificationEmail(newUser.email, emailCode);
+
+      const token = createToken(user);
       return res.status(403).json({ 
         messageCode: 'MSG_0003', 
         requiresVerification: true,
+        token,
+        expiresIn: expiresIn(15),
         message: 'Email verification required'
       });
     }
@@ -55,6 +67,7 @@ const signinUser = async (req, res) => {
         messageCode: 'MSG_0003', 
         requiresProfileCompletion: true,
         token,
+        expiresIn: expiresIn(15),
         message: 'Profile completion required'
       });
     }
@@ -164,7 +177,7 @@ const signupViaInvite = async (req, res) => {
 const verifyEmailCode = async (req, res) => {
   try {
     const { code } = req.body;
-    const user = await User.findById(req.user.userId);
+    const user = req.user;
     
     if (!user) {
       return res.status(404).json({ messageCode: 'MSG_0053', message: 'User not found' });
@@ -173,13 +186,13 @@ const verifyEmailCode = async (req, res) => {
     if (user.isEmailVerified) {
       return res.status(400).json({ messageCode: 'MSG_0054', message: 'Email already verified' });
     }
+
+    if (new Date() > user.emailExpireIn) {
+      return res.status(400).json({ messageCode: 'MSG_0056', message: 'Verification code expired' });
+    }
     
     if (user.emailCode !== code) {
       return res.status(400).json({ messageCode: 'MSG_0055', message: 'Invalid verification code' });
-    }
-    
-    if (new Date() > user.emailExpireIn) {
-      return res.status(400).json({ messageCode: 'MSG_0056', message: 'Verification code expired' });
     }
     
     user.isEmailVerified = true;
@@ -187,11 +200,9 @@ const verifyEmailCode = async (req, res) => {
     user.emailExpireIn = undefined;
     await user.save();
     
-    const token = createToken(user);
-    
     res.json({
       messageCode: 'MSG_0003', 
-      token,
+      user,
       requiresProfileCompletion: !user.isSignUpComplete,
       message: 'Email verified successfully'
     });
@@ -202,10 +213,10 @@ const verifyEmailCode = async (req, res) => {
 };
 
 // Complete signup profile
-const completeProfile = async (req, res) => {
+const   completeProfile = async (req, res) => {
   try {
     const { firstName, lastName } = req.body;
-    const user = await User.findById(req.user.userId);
+    const user = req.user;
     
     if (!user) {
       return res.status(404).json({ messageCode: 'MSG_0053', message: 'User not found' });
@@ -225,8 +236,8 @@ const completeProfile = async (req, res) => {
         await deleteFromCloudinary(user.profileImage.public_id);
       }
       user.profileImage = {
-        public_id: req.file.public_id,
-        url: req.file.secure_url
+        public_id: req.file?.filename,
+        url: req.file?.path
       };
     }
     
@@ -256,22 +267,22 @@ const updateUser = async (req, res) => {
     if (!userToUpdate || userToUpdate.deleted) {
       return res.status(404).json({ messageCode: 'MSG_0053', message: 'User not found' });
     }
-    
+  
     // Check permission hierarchy
-    if (!roleHierarchy.canManage(updater.role, userToUpdate.role)) {
+    if (!roleHierarchy.canManage(updater.role, userToUpdate.role) && updater._id.toString() !== userId) {
       return res.status(403).json({ 
         messageCode: 'MSG_0058', message: 'You cannot manage this user' 
       });
     }
-    
+  
     // Handle profile image
     if (req.file) {
       if (userToUpdate.profileImage?.public_id) {
         await deleteFromCloudinary(userToUpdate.profileImage.public_id);
       }
       userToUpdate.profileImage = {
-        public_id: req.file.public_id,
-        url: req.file.secure_url
+        public_id: req.file?.filename,
+        url: req.file?.path
       };
     }
     
@@ -404,7 +415,7 @@ const getUsers = async (req, res) => {
 
 
 // 2. User Registration
-const signupUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const creator = req.user;
     const { firstName, lastName, email, password, role, hotel } = req.body;
@@ -493,13 +504,106 @@ const signupUser = async (req, res) => {
 };
 
 
+const signupUser = async (req, res) => {
+  try {
+    const { email, password, confirmPassword, role } = req.body;
+    
+    // Validation
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ messageCode: 'MSG_0063', message: 'Invalid email format' });
+    }
+
+    //Check if role is owner
+    if(role !== 'owner') return res.status(403).json({ messageCode: 'MSG_0062', message: 'Permission denied' })
+
+    // Check if user exists
+    const existingUser = await User.findOne({ email, deleted: false });
+    if (existingUser) {
+      return res.status(409).json({ messageCode: 'MSG_0051', message: 'Email already registered' });
+    }
+    
+    if (!validator.isStrongPassword(password, {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    })) {
+      return res.status(400).json({ messageCode: 'MSG_0064', message: 'Password not strong enough' });
+    }
+
+    if(password != confirmPassword) return res.status(400).json({ messageCode: 'MSG_0101', message: 'Password don\'t match' });
+    
+    // Create new user
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const emailCode = Math.floor(100000 + Math.random() * 900000); // 6-digit code
+    
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      role,
+      emailCode,
+      emailExpireIn: new Date(Date.now() + 3600000), // 1 hour expiration
+    });
+    
+    // Handle profile image
+    if (req.file) {
+      newUser.profileImage = {
+        public_id: req.file.public_id,
+        url: req.file.secure_url
+      };
+    }
+    
+    await newUser.save();
+    
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`[USERINFO] ${email}`);
+      console.log(`  ├─ Password: ${password}`);
+      console.log(`  └─ EmailCode: ${emailCode}\n`);
+    }
+    // TODO: Send verification email with emailCode
+    // sendVerificationEmail(newUser.email, emailCode);
+    
+    const userData = newUser.toObject();
+    delete userData.password;
+    delete userData.emailCode;
+    delete userData.emailExpireIn;
+
+    //create user token
+    const token = createToken(userData);
+    
+    res.status(201).json({
+      messageCode: 'MSG_0065', message: 'User created. Please verify your email.',
+      user: userData,
+      expiresIn: expiresIn(15),
+      token
+    });
+  } catch (error) {
+    console.error('Signup Error:', error);
+    res.status(500).json({ messageCode: 'MSG_0001', message: 'Server error' });
+  }
+};
+
+
 
 
 // 5. Get All Users (Simplified)
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ deleted: false })
-      .select('-password -emailCode -emailExpireIn');
+    const { role } = req.query;
+
+    const user = req.user
+    const managebleRoles = roleHierarchy.getManageableRoles(user.role)
+    const filter = {
+      role: { $in: managebleRoles},
+      deleted: false
+    }
+    if(role) filter.role = role;
+    // if(user?.hotel) filter.hotel = user.hotel
+    
+    
+    const users = await User.find(filter)
+      .select('-password -emailCode -emailExpireIn -isEmailVerified -isSignUpComplete');
     
     res.json({ messageCode: 'MSG_0003',  users });
   } catch (error) {
@@ -624,6 +728,7 @@ module.exports = {
   getUser,
   getUsers,
   signupUser,
+  createUser,
   getAllUsers,
   sendResetPassword,
   resetPassword,

@@ -22,6 +22,11 @@ router.delete('/:id',
   roomController.deleteRoom
 );
 
+router.get('/all',
+  checkPermission(permissions.readRoom),
+  roomController.getAllRooms
+);
+
 router.get('/:id',
   checkPermission(permissions.readRoom),
   roomController.getRoom
@@ -32,9 +37,5 @@ router.get('/',
   roomController.getRooms
 );
 
-router.get('/all/list',
-  checkPermission(permissions.readRoom),
-  roomController.getAllRooms
-);
 
 module.exports = router;

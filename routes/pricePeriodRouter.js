@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const checkPermission = require('../middlewares/permissionMiddleware');
-const verifyJWT = require('../middlewares/verifyJWT');
+const verifyJWT = require('../middlewares/authentication');
 const permissions = require('../constants/permissions.constants');
 
-const pricePeriodController = require('../controllers/pricePeriod.controller');
+const pricePeriodController = require('../controllers/pricePeriodController');
 
 router.use(verifyJWT);
 

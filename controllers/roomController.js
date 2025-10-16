@@ -14,13 +14,15 @@ const getRooms = async (req, res) => {
     } = req.query;
 
     const query = { deleted: false };
-    if (hotel) query.hotel = hotel;
+    if (hotel || user?.hotel) query.hotel = hotel || user?.hotel;
 
     const rooms = await Room.find(query)
       .populate('category')
       .sort({ [sort]: order === 'asc' ? 1 : -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(parseInt(limit))
+      .populate('hotel', 'name')
+      .populate('createdBy', 'firstName lastName');
 
     if (type === 'overview') {
       const enhancedRooms = await Promise.all(rooms.map(async (room) => {
@@ -140,7 +142,12 @@ const getRoom = async (req, res) => {
 
 const getAllRooms = async (req, res) => {
   try {
-    const rooms = await Room.find({ deleted: false }).populate('hotel category');
+    const { hotel } = req.query
+    const query = { deleted: false }
+    if(req.user?.hotel || hotel) {
+      query.hotel = req.user?.hotel || hotel
+    }
+    const rooms = await Room.find(query).populate('hotel category');
     res.json({messageCode: 'MSG_0003', rooms});
   } catch (error) {
     res.status(500).json({messageCode: 'MSG_0001', message: error.message });
